@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "42961822919",
+    "project_id": "vertigrow-ae776",
+    "storage_bucket": "vertigrow-ae776.appspot.com",  // Fixed storage bucket format
+    "firebase_url": "https://vertigrow-ae776-default-rtdb.asia-southeast1.firebasedatabase.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42961822919:android:7d83b8d84f4e8351f2cae2",
+        "android_client_info": {
+          "package_name": "com.example.finalproject_vertigrow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxBD0tj9bzLCymAg9L9x6OItzFY9OCEFM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
