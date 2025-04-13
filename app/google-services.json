@@ -1,9 +1,9 @@
 {
   "project_info": {
     "project_number": "42961822919",
+    "firebase_url": "https://vertigrow-ae776-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "vertigrow-ae776",
-    "storage_bucket": "vertigrow-ae776.appspot.com",  // Fixed storage bucket format
-    "firebase_url": "https://vertigrow-ae776-default-rtdb.asia-southeast1.firebasedatabase.app"
+    "storage_bucket": "vertigrow-ae776.firebasestorage.app"
   },
   "client": [
     {
@@ -13,7 +13,20 @@
           "package_name": "com.example.finalproject_vertigrow"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "42961822919-b4c9b6ta73uce0cebak595s64qrvfsts.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.finalproject_vertigrow",
+            "certificate_hash": "a0a3648f809746baccd2821ef1688cf9d29be76a"
+          }
+        },
+        {
+          "client_id": "42961822919-9hafa7nl8plq4dnstq3c970ddm1d7mqk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAxBD0tj9bzLCymAg9L9x6OItzFY9OCEFM"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "42961822919-9hafa7nl8plq4dnstq3c970ddm1d7mqk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

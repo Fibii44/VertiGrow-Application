@@ -35,15 +35,25 @@ android {
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+
+    // Firebase dependencies (let BOM manage the versions)
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore")
+
+    // Other common dependencies
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    // Google Sign-In Auth
+    implementation("com.google.android.gms:play-services-auth:20.5.0")
+    //Google Icons
+    implementation("com.google.android.material:material:1.9.0")
+
 }

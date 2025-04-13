@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_dashboard"
+        android:icon="@android:drawable/ic_menu_compass"
+        android:title="Dashboard" />
+    <item
+        android:id="@+id/navigation_farms"
+        android:icon="@android:drawable/ic_menu_gallery"
+        android:title="Farms" />
+    <item
+        android:id="@+id/navigation_irrigation"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="Irrigation Log" />
+    <item
+        android:id="@+id/navigation_menu"
+        android:icon="@android:drawable/ic_menu_more"
+        android:title="Menu" />
+</menu> 
