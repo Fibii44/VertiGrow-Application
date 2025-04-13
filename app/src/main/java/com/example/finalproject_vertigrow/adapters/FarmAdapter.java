@@ -6,9 +6,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.finalproject_vertigrow.R;
+import com.example.finalproject_vertigrow.fragments.SensorFragment;
 import com.example.finalproject_vertigrow.models.Farm;
 
 import java.util.ArrayList;
@@ -16,8 +18,10 @@ import java.util.List;
 
 public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder> {
     private List<Farm> farms = new ArrayList<>();
+    private FragmentActivity activity;
 
-    public FarmAdapter() {
+    public FarmAdapter(FragmentActivity activity) {
+        this.activity = activity;
     }
 
     public void setFarms(List<Farm> farms) {
@@ -42,6 +46,17 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
     public void onBindViewHolder(@NonNull FarmViewHolder holder, int position) {
         Farm farm = farms.get(position);
         holder.bind(farm);
+        
+        // Set click listener for the entire item
+        holder.itemView.setOnClickListener(v -> {
+            // Navigate to SensorFragment
+            SensorFragment sensorFragment = SensorFragment.newInstance(farm.getId(), farm.getPlantName());
+            activity.getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, sensorFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
     }
 
     @Override

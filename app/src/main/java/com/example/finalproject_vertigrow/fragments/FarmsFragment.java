@@ -73,7 +73,7 @@ public class FarmsFragment extends Fragment {
         // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.recyclerView_farms);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new FarmAdapter();
+        adapter = new FarmAdapter(requireActivity());
         recyclerView.setAdapter(adapter);
         
         // Initialize Add Farm button
