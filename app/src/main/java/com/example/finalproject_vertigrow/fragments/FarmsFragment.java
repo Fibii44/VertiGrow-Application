@@ -2,6 +2,7 @@ package com.example.finalproject_vertigrow.fragments;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,21 +25,25 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FarmsFragment extends Fragment {
+    private static final String TAG = "FarmsFragment";
     private RecyclerView recyclerView;
     private FarmAdapter adapter;
     private FloatingActionButton addButton;
-    private FirebaseDatabase database;
-    private DatabaseReference farmsRef;
+    private FirebaseFirestore db;
+    private CollectionReference farmsCollection;
     private FirebaseAuth auth;
 
     public FarmsFragment() {
@@ -62,12 +67,19 @@ public class FarmsFragment extends Fragment {
         
         // Initialize Firebase
         auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
+        db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
         
         if (currentUser != null) {
             String userId = currentUser.getUid();
-            farmsRef = database.getReference("users").child(userId).child("farms");
+            Log.d(TAG, "Current user ID: " + userId);
+            
+            // Use the 'farms' collection in Firestore
+            farmsCollection = db.collection("farms");
+            Log.d(TAG, "Firestore collection path: farms");
+        } else {
+            Log.e(TAG, "User is not authenticated");
+            Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
         }
         
         // Initialize RecyclerView
@@ -80,35 +92,66 @@ public class FarmsFragment extends Fragment {
         addButton = view.findViewById(R.id.button_add_farm);
         addButton.setOnClickListener(v -> showAddFarmDialog());
         
-        // Load farms from Firebase
+        // Load farms from Firestore
         loadFarms();
     }
     
     private void loadFarms() {
-        if (farmsRef == null) return;
+        if (farmsCollection == null) {
+            Log.e(TAG, "farmsCollection is null, cannot load farms");
+            return;
+        }
         
-        farmsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<Farm> farmsList = new ArrayList<>();
-                
-                for (DataSnapshot farmSnapshot : snapshot.getChildren()) {
-                    Farm farm = farmSnapshot.getValue(Farm.class);
-                    if (farm != null) {
-                        farm.setId(farmSnapshot.getKey());
-                        farmsList.add(farm);
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) {
+            Log.e(TAG, "User is not authenticated, cannot load farms");
+            return;
+        }
+        
+        String userId = currentUser.getUid();
+        Log.d(TAG, "Loading farms for user: " + userId);
+        
+        // Query farms where userId matches the current user
+        farmsCollection.whereEqualTo("userId", userId)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Error loading farms: " + error.getMessage());
+                        Toast.makeText(getContext(), "Error loading farms: " + error.getMessage(), 
+                                Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                }
-                
-                adapter.setFarms(farmsList);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Error loading farms: " + error.getMessage(), 
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+                    
+                    if (value == null) {
+                        Log.d(TAG, "No farms found");
+                        adapter.setFarms(new ArrayList<>());
+                        return;
+                    }
+                    
+                    Log.d(TAG, "Data changed, number of farms: " + value.size());
+                    
+                    List<Farm> farmsList = new ArrayList<>();
+                    
+                    for (QueryDocumentSnapshot document : value) {
+                        Farm farm = new Farm();
+                        farm.setId(document.getId());
+                        farm.setUserId(document.getString("userId"));
+                        farm.setPlantName(document.getString("plantName"));
+                        farm.setPlantType(document.getString("plantType"));
+                        farm.setOnline(document.getBoolean("isOnline") != null ? 
+                                document.getBoolean("isOnline") : false);
+                        
+                        // Get the farm number from Firestore
+                        Long farmNumber = document.getLong("farm");
+                        if (farmNumber != null) {
+                            farm.setFarm(farmNumber.intValue());
+                        }
+                        
+                        farmsList.add(farm);
+                        Log.d(TAG, "Loaded farm: " + farm.getPlantName() + ", ID: " + farm.getId() + ", Farm: " + farm.getFarm());
+                    }
+                    
+                    adapter.setFarms(farmsList);
+                });
     }
     
     private void showAddFarmDialog() {
@@ -151,11 +194,25 @@ public class FarmsFragment extends Fragment {
                 return;
             }
             
-            // Create new farm
-            Farm newFarm = new Farm(plantName, plantType);
+            // Get current user ID
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if (currentUser == null) {
+                Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
+                return;
+            }
             
-            // Save to Firebase
-            saveFarmToFirebase(newFarm);
+            String userId = currentUser.getUid();
+            Log.d(TAG, "Creating new farm for user: " + userId);
+            
+            // Create farm data for Firestore
+            Map<String, Object> farmData = new HashMap<>();
+            farmData.put("userId", userId);
+            farmData.put("plantName", plantName);
+            farmData.put("plantType", plantType);
+            farmData.put("isOnline", false);
+            
+            // Save to Firestore
+            saveFarmToFirestore(farmData);
             
             dialog.dismiss();
         });
@@ -163,23 +220,52 @@ public class FarmsFragment extends Fragment {
         dialog.show();
     }
     
-    private void saveFarmToFirebase(Farm farm) {
-        if (farmsRef == null) {
+    private void saveFarmToFirestore(Map<String, Object> farmData) {
+        if (farmsCollection == null) {
+            Log.e(TAG, "farmsCollection is null, cannot save farm");
             Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
             return;
         }
         
-        // Generate a new unique key for the farm
-        String farmId = farmsRef.push().getKey();
-        
-        if (farmId != null) {
-            farm.setId(farmId);
-            farmsRef.child(farmId).setValue(farm)
-                    .addOnSuccessListener(aVoid -> 
-                        Toast.makeText(getContext(), "Farm added successfully", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e -> 
-                        Toast.makeText(getContext(), "Failed to add farm: " + e.getMessage(), 
-                                Toast.LENGTH_SHORT).show());
-        }
+        Log.d(TAG, "Saving farm data: " + farmData.toString());
+
+        // Query to get the highest farm number
+        farmsCollection
+                .orderBy("farm", Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int nextFarm = 1; // Default start value
+                    
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // Get the highest farm number and add 1
+                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                        Long currentHighest = documentSnapshot.getLong("farm");
+                        if (currentHighest != null) {
+                            nextFarm = currentHighest.intValue() + 1;
+                        }
+                    }
+                    
+                    // Add farm number to the farm data
+                    farmData.put("farm", nextFarm);
+                    
+                    // Now save the farm with the new farm number
+                    farmsCollection.add(farmData)
+                            .addOnSuccessListener(documentReference -> {
+                                Log.d(TAG, "Farm added successfully with ID: " + documentReference.getId());
+                                Toast.makeText(getContext(), "Farm added successfully", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Failed to add farm: " + e.getMessage());
+                                Log.e(TAG, "Exception: " + e.getClass().getName());
+                                Toast.makeText(getContext(), "Failed to add farm: " + e.getMessage(), 
+                                        Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error getting highest farm number: " + e.getMessage());
+                    Toast.makeText(getContext(), "Error creating farm: " + e.getMessage(), 
+                            Toast.LENGTH_SHORT).show();
+                });
     }
 } 
