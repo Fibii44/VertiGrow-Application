@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    android:layout_margin="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/image_member"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:layout_marginBottom="8dp"
+            tools:src="@drawable/keith" />
+
+        <TextView
+            android:id="@+id/text_member_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            tools:text="Keith Einlou J. Pogoy" />
+
+        <TextView
+            android:id="@+id/text_member_role"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textAlignment="center"
+            android:textColor="@android:color/holo_green_dark"
+            android:textStyle="italic"
+            android:layout_marginTop="4dp"
+            tools:text="Lead Software Developer" />
+
+        <TextView
+            android:id="@+id/text_member_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textAlignment="center"
+            android:layout_marginTop="8dp"
+            android:lineSpacingExtra="2dp"
+            tools:text="You can rely on the software system and designs the UI/UX for a user-friendly experience." />
+    </LinearLayout>
+</androidx.cardview.widget.CardView> 
