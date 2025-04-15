@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.finalproject_vertigrow.R;
 import com.example.finalproject_vertigrow.fragments.SensorFragment;
+import com.example.finalproject_vertigrow.fragments.NoSensorsFragment;
 import com.example.finalproject_vertigrow.models.Farm;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -62,12 +63,11 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
         
         // Set click listener for the entire item
         holder.itemView.setOnClickListener(v -> {
-            SensorFragment sensorFragment = SensorFragment.newInstance(farm.getId(), farm.getPlantName());
-            activity.getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, sensorFragment)
-                    .addToBackStack(null)
-                    .commit();
+            // Get the farm number directly from the Farm object
+            int farmNumber = farm.getFarm();
+            
+            // Check if this farm has sensor data
+            checkFarmSensorData(farmNumber);
         });
 
         // Set up the more options menu
@@ -87,6 +87,43 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
             });
             popup.show();
         });
+    }
+
+    private void checkFarmSensorData(int farmNumber) {
+        // Query Firestore for sensor data for this farm
+        FirebaseFirestore.getInstance()
+            .collection("sensors")
+            .whereEqualTo("farm", farmNumber)
+            .limit(1)  // We only need to know if at least one sensor document exists
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                    // Sensor data exists for this farm
+                    // Create and navigate to the sensor fragment
+                    SensorFragment sensorFragment = SensorFragment.newInstance(farmNumber);
+                    activity.getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, sensorFragment)
+                        .addToBackStack(null)
+                        .commit();
+                } else {
+                    // No sensor data exists for this farm
+                    // Create and navigate to the no sensors fragment
+                    String title = "No Sensor Data Available";
+                    String description = "Farm #" + farmNumber + " does not have any sensors connected or the sensors are not sending data currently.";
+                    
+                    NoSensorsFragment noSensorsFragment = NoSensorsFragment.newInstance(title, description);
+                    activity.getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, noSensorsFragment)
+                        .addToBackStack(null)
+                        .commit();
+                }
+            })
+            .addOnFailureListener(e -> {
+                // Query failed
+                Toast.makeText(activity, "Error checking sensors: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
     }
 
     private void showEditDialog(Farm farm) {

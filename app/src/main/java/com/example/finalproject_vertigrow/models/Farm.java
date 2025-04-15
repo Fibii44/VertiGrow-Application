@@ -52,6 +52,25 @@ public class Farm {
             this.farm = 0; // Default to 0 if parsing fails
         }
     }
+    
+    // Added method to handle Long values from Firestore
+    public void setFarm(Long farm) {
+        if (farm != null) {
+            this.farm = farm.intValue();
+        } else {
+            this.farm = 0;
+        }
+    }
+    
+    // Method to convert farm number to Long for Firestore queries
+    public Long getFarmAsLong() {
+        return (long) farm;
+    }
+    
+    // Method to get farm number as String for Firestore queries
+    public String getFarmAsString() {
+        return String.valueOf(farm);
+    }
 
     public String getUserId() {
         return userId;
