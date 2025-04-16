@@ -1,14 +1,12 @@
 package com.example.finalproject_vertigrow.models;
 
-import com.google.firebase.Timestamp;
 import java.util.Map;
 
 public class SensorData {
-    private String id;
+    private String id;  // Firebase push ID
     private int batchId;
     private int farm;
     private int batteryLevel;
-    private String createdAt;
     private String growLightsStatus;
     private Map<String, Object> humidity;
     private Map<String, Object> layer1;
@@ -17,11 +15,11 @@ public class SensorData {
     private Map<String, Object> light;
     private Map<String, Object> phLevel;
     private Map<String, Object> temperature;
-    private String updatedAt;
     private Map<String, Object> waterLevel;
     private Map<String, Object> waterPumpStatus;
+    private long timestamp;  // Added timestamp field
 
-    // Empty constructor for Firestore
+    // Empty constructor for Firebase
     public SensorData() {}
 
     // Getters and Setters
@@ -31,6 +29,14 @@ public class SensorData {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public int getBatchId() {
@@ -55,14 +61,6 @@ public class SensorData {
 
     public void setBatteryLevel(int batteryLevel) {
         this.batteryLevel = batteryLevel;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
     }
 
     public String getGrowLightsStatus() {
@@ -127,14 +125,6 @@ public class SensorData {
 
     public void setTemperature(Map<String, Object> temperature) {
         this.temperature = temperature;
-    }
-
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public Map<String, Object> getWaterLevel() {
@@ -257,4 +247,4 @@ public class SensorData {
         return waterPumpStatus != null && waterPumpStatus.get("fault") != null ? 
             (String) waterPumpStatus.get("fault") : "none";
     }
-} 
+}

@@ -4,6 +4,7 @@
     package="com.example.finalproject_vertigrow">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FinalProject_VertiGrow"
         tools:targetApi="31">
+
         <activity
             android:name=".activities.AdminActivity"
             android:exported="false" />
@@ -22,13 +24,7 @@
             android:name=".activities.UserActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.MainScreenActivity"
-            android:exported="false" />
-        <activity
             android:name=".activities.SignUpActivity"
-            android:exported="false" />
-        <activity
-            android:name=".LoginActivity"
             android:exported="false" />
         <activity
             android:name=".activities.MainActivity"

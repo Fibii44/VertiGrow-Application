@@ -56,4 +56,6 @@ dependencies {
     //Google Icons
     implementation("com.google.android.material:material:1.9.0")
 
+    implementation ("org.json:json:20231013")
+
 }

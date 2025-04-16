@@ -25,6 +25,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -137,13 +142,14 @@ public class FarmsFragment extends Fragment {
                         farm.setUserId(document.getString("userId"));
                         farm.setPlantName(document.getString("plantName"));
                         farm.setPlantType(document.getString("plantType"));
-                        farm.setOnline(document.getBoolean("isOnline") != null ? 
-                                document.getBoolean("isOnline") : false);
                         
                         // Get the farm number from Firestore
                         Long farmNumber = document.getLong("farm");
                         if (farmNumber != null) {
                             farm.setFarm(farmNumber.intValue());
+                            
+                            // Check if this farm has recent sensor data
+                            checkFarmOnlineStatus(farm);
                         }
                         
                         farmsList.add(farm);
@@ -152,6 +158,68 @@ public class FarmsFragment extends Fragment {
                     
                     adapter.setFarms(farmsList);
                 });
+    }
+    
+    private void checkFarmOnlineStatus(Farm farm) {
+        Log.d(TAG, "Checking online status for farm: " + farm.getFarm());
+        
+        // Get reference to Firebase Realtime Database
+        DatabaseReference sensorsRef = FirebaseDatabase.getInstance().getReference("sensors");
+        
+        // Query for any sensor data for this farm
+        sensorsRef.orderByChild("farm").equalTo(farm.getFarm())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Log.d(TAG, "Received sensor data snapshot for farm " + farm.getFarm() + ", exists: " + dataSnapshot.exists());
+                        Log.d(TAG, "Number of children: " + dataSnapshot.getChildrenCount());
+                        
+                        if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                            Log.d(TAG, "Sensor data exists for farm " + farm.getFarm() + ", setting online=true");
+                            // If any sensor data exists for this farm, it's online
+                            farm.setOnline(true);
+                        } else {
+                            Log.d(TAG, "No sensor data exists for farm " + farm.getFarm() + ", setting online=false");
+                            farm.setOnline(false);
+                        }
+                        
+                        // Update the farm's online status in Firestore
+                        updateFarmOnlineStatus(farm);
+                        
+                        // Also update the adapter directly if needed
+                        if (adapter != null) {
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, "Error checking farm online status: " + databaseError.getMessage());
+                        farm.setOnline(false);
+                        updateFarmOnlineStatus(farm);
+                    }
+                });
+    }
+    
+    private void updateFarmOnlineStatus(Farm farm) {
+        if (farmsCollection != null) {
+            Log.d(TAG, "Updating online status for farm " + farm.getFarm() + " to: " + farm.isOnline());
+            
+            farmsCollection.document(farm.getId())
+                    .update("isOnline", farm.isOnline())
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d(TAG, "Successfully updated online status for farm " + farm.getFarm());
+                        // Refresh the adapter to update the UI
+                        if (adapter != null) {
+                            adapter.notifyDataSetChanged();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error updating farm online status: " + e.getMessage());
+                    });
+        } else {
+            Log.e(TAG, "farmsCollection is null, cannot update online status");
+        }
     }
     
     private void showAddFarmDialog() {

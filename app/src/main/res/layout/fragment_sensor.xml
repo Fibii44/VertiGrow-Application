@@ -49,14 +49,25 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <!-- Fault Indicator for L3 -->
+                <View
+                    android:id="@+id/fault_indicator_l3"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/circle_background"
+                    android:layout_marginStart="4dp"
+                    app:layout_constraintStart_toEndOf="@id/text_l3"
+                    app:layout_constraintTop_toTopOf="@id/text_l3"
+                    app:layout_constraintBottom_toBottomOf="@id/text_l3" />
+
                 <TextView
                     android:id="@+id/text_moisture_l3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="2585"
+                    android:text="1500"
                     android:textSize="16sp"
-                    app:layout_constraintStart_toEndOf="@id/text_l3"
+                    app:layout_constraintStart_toEndOf="@id/fault_indicator_l3"
                     app:layout_constraintTop_toTopOf="@id/text_l3" />
 
                 <TextView
@@ -66,8 +77,8 @@
                     android:layout_marginStart="12dp"
                     android:text="Soil Moisture"
                     android:textSize="16sp"
-                    app:layout_constraintStart_toEndOf="@+id/text_moisture_l3"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintStart_toEndOf="@id/text_moisture_l3"
+                    app:layout_constraintTop_toTopOf="@id/text_l3" />
 
                 <TextView
                     android:id="@+id/text_moderate_l3"
@@ -82,11 +93,12 @@
 
                 <ProgressBar
                     android:id="@+id/progress_l3"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:progress="75"
+                    android:max="100"
+                    android:progress="50"
                     android:progressTint="@android:color/holo_orange_light"
                     app:layout_constraintTop_toBottomOf="@id/text_l3" />
 
@@ -103,7 +115,6 @@
                         android:layout_height="100dp"
                         android:layout_margin="4dp"
                         android:src="@drawable/plant" />
-
 
                 </LinearLayout>
 
@@ -135,8 +146,19 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <!-- Fault Indicator for L2 -->
+                <View
+                    android:id="@+id/fault_indicator_l2"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/circle_background"
+                    android:layout_marginStart="4dp"
+                    app:layout_constraintStart_toEndOf="@id/text_l2"
+                    app:layout_constraintTop_toTopOf="@id/text_l2"
+                    app:layout_constraintBottom_toBottomOf="@id/text_l2" />
+
                 <TextView
-                    android:id="@+id/soilmoisture"
+                    android:id="@+id/soilmoisture_l2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
@@ -220,6 +242,17 @@
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Fault Indicator for L1 -->
+                <View
+                    android:id="@+id/fault_indicator_l1"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/circle_background"
+                    android:layout_marginStart="4dp"
+                    app:layout_constraintStart_toEndOf="@id/text_l1"
+                    app:layout_constraintTop_toTopOf="@id/text_l1"
+                    app:layout_constraintBottom_toBottomOf="@id/text_l1" />
 
                 <TextView
                     android:id="@+id/text_moisture_l1"
@@ -358,11 +391,24 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="pH Level"
-                            android:textStyle="bold"/>
+                            android:orientation="horizontal">
+
+                            <View
+                                android:id="@+id/fault_indicator_ph"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_background"
+                                android:layout_marginEnd="8dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="pH Level"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/ph_level"
@@ -389,11 +435,24 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Temperature"
-                            android:textStyle="bold"/>
+                            android:orientation="horizontal">
+
+                            <View
+                                android:id="@+id/fault_indicator_temp"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_background"
+                                android:layout_marginEnd="8dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Temperature"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/temperature"
@@ -420,11 +479,24 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Humidity"
-                            android:textStyle="bold"/>
+                            android:orientation="horizontal">
+
+                            <View
+                                android:id="@+id/fault_indicator_humidity"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_background"
+                                android:layout_marginEnd="8dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Humidity"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/humidity"
@@ -451,11 +523,24 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Light Intensity"
-                            android:textStyle="bold"/>
+                            android:orientation="horizontal">
+
+                            <View
+                                android:id="@+id/fault_indicator_light"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_background"
+                                android:layout_marginEnd="8dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Light Intensity"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/light_intensity"
@@ -482,11 +567,24 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Water Tank"
-                            android:textStyle="bold"/>
+                            android:orientation="horizontal">
+
+                            <View
+                                android:id="@+id/fault_indicator_water"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_background"
+                                android:layout_marginEnd="8dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Water Tank"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/water_tank"

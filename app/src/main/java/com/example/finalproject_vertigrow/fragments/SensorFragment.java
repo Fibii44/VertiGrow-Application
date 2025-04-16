@@ -1,5 +1,7 @@
 package com.example.finalproject_vertigrow.fragments;
 
+import android.graphics.Color;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,13 +19,15 @@ import com.example.finalproject_vertigrow.R;
 import com.example.finalproject_vertigrow.models.SensorData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SensorFragment extends Fragment {
@@ -38,6 +42,7 @@ public class SensorFragment extends Fragment {
     private TextView soilmoistureL3;
     private TextView textModerateL3;
     private ProgressBar progressL3;
+    private View faultIndicatorL3;
     
     // Layer 2
     private TextView textL2;
@@ -45,6 +50,7 @@ public class SensorFragment extends Fragment {
     private TextView soilmoistureL2;
     private TextView textModerateL2;
     private ProgressBar progressL2;
+    private View faultIndicatorL2;
     
     // Layer 1
     private TextView textL1;
@@ -52,6 +58,7 @@ public class SensorFragment extends Fragment {
     private TextView soilmoistureL1;
     private TextView textModerateL1;
     private ProgressBar progressL1;
+    private View faultIndicatorL1;
     
     // Monitoring
     private ProgressBar batteryProgress;
@@ -64,9 +71,16 @@ public class SensorFragment extends Fragment {
     private TextView growLights;
     private TextView waterPump;
 
+    // Fault Indicators
+    private View faultIndicatorPh;
+    private View faultIndicatorTemp;
+    private View faultIndicatorHumidity;
+    private View faultIndicatorLight;
+    private View faultIndicatorWater;
+
     private FirebaseAuth auth;
-    private FirebaseFirestore db;
-    private ListenerRegistration sensorListener;
+    private DatabaseReference sensorsRef;
+    private ValueEventListener sensorListener;
     private int farm;
 
     public SensorFragment() {
@@ -88,7 +102,9 @@ public class SensorFragment extends Fragment {
             farm = getArguments().getInt("farm");
         }
         auth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        // Initialize Realtime Database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        sensorsRef = database.getReference("sensors");
     }
 
     @Override
@@ -114,13 +130,15 @@ public class SensorFragment extends Fragment {
         soilmoistureL3 = view.findViewById(R.id.soilmoisture_l3);
         textModerateL3 = view.findViewById(R.id.text_moderate_l3);
         progressL3 = view.findViewById(R.id.progress_l3);
+        faultIndicatorL3 = view.findViewById(R.id.fault_indicator_l3);
         
         // Layer 2
         textL2 = view.findViewById(R.id.text_l2);
         textMoistureL2 = view.findViewById(R.id.text_moisture_l2);
-        soilmoistureL2 = view.findViewById(R.id.soilmoisture);
+        soilmoistureL2 = view.findViewById(R.id.soilmoisture_l2);
         textModerateL2 = view.findViewById(R.id.text_moderate_l2);
         progressL2 = view.findViewById(R.id.progress_l2);
+        faultIndicatorL2 = view.findViewById(R.id.fault_indicator_l2);
         
         // Layer 1
         textL1 = view.findViewById(R.id.text_l1);
@@ -128,6 +146,7 @@ public class SensorFragment extends Fragment {
         soilmoistureL1 = view.findViewById(R.id.soilmoisture_l1);
         textModerateL1 = view.findViewById(R.id.text_moderate_l1);
         progressL1 = view.findViewById(R.id.progress_l1);
+        faultIndicatorL1 = view.findViewById(R.id.fault_indicator_l1);
         
         // Monitoring
         batteryProgress = view.findViewById(R.id.battery_progress);
@@ -139,6 +158,13 @@ public class SensorFragment extends Fragment {
         waterTank = view.findViewById(R.id.water_tank);
         growLights = view.findViewById(R.id.grow_lights);
         waterPump = view.findViewById(R.id.water_pump);
+
+        // Fault Indicators
+        faultIndicatorPh = view.findViewById(R.id.fault_indicator_ph);
+        faultIndicatorTemp = view.findViewById(R.id.fault_indicator_temp);
+        faultIndicatorHumidity = view.findViewById(R.id.fault_indicator_humidity);
+        faultIndicatorLight = view.findViewById(R.id.fault_indicator_light);
+        faultIndicatorWater = view.findViewById(R.id.fault_indicator_water);
 
         textSensorTitle.setText("Farm #" + farm + " Sensors");
     }
@@ -152,264 +178,71 @@ public class SensorFragment extends Fragment {
 
         Log.d(TAG, "Setting up sensor listener for farm: " + farm);
         
-        // Log all possible farm value types to help with debugging
-        Log.d(TAG, "Farm value types to match:");
-        Log.d(TAG, "Integer value: " + farm);
-        Log.d(TAG, "Long value: " + (long)farm);
-        Log.d(TAG, "String value: \"" + farm + "\"");
-        
-        // Define field names as constants to avoid typos and make it clear these are database field names
-        final String FIELD_FARM = "farm";
-        final String FIELD_CREATED_AT = "createdAt";
-        final String FIELD_BATCH_ID = "batch_id";
-        final String FIELD_BATTERY_LEVEL = "battery_level";
-        final String FIELD_GROW_LIGHTS_STATUS = "grow_lights_status";
-        final String FIELD_HUMIDITY = "humidity";
-        final String FIELD_LAYER_1 = "layer_1";
-        final String FIELD_LAYER_2 = "layer_2";
-        final String FIELD_LAYER_3 = "layer_3";
-        final String FIELD_LIGHT = "light";
-        final String FIELD_PH_LEVEL = "ph_level";
-        final String FIELD_TEMPERATURE = "temperature";
-        final String FIELD_UPDATED_AT = "updatedAt";
-        final String FIELD_WATER_LEVEL = "water_level";
-        final String FIELD_WATER_PUMP_STATUS = "water_pump_status";
-        
-        // Try multiple approaches to find the farm data
-        db.collection("sensors").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            if (!queryDocumentSnapshots.isEmpty()) {
-                Log.d(TAG, "Found " + queryDocumentSnapshots.size() + " sensor documents");
-                
-                // Log document farm fields to help debug
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    Object farmValue = doc.get(FIELD_FARM);
-                    String farmType = farmValue != null ? farmValue.getClass().getSimpleName() : "null";
-                    Log.d(TAG, "Document ID: " + doc.getId() + " | farm: " + farmValue + " (" + farmType + ")");
-                }
-                
-                QueryDocumentSnapshot latestDoc = null;
-                long latestTimestamp = 0;
-                
-                // Find the documents that match our farm
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    try {
-                        // Get the farm value using multiple approaches
-                        boolean isMatch = false;
-                        Object farmValue = doc.get(FIELD_FARM);
-                        
-                        if (farmValue == null) {
-                            Log.d(TAG, "Document " + doc.getId() + " has null farm value");
-                            continue;
-                        }
-                        
-                        // Compare as long
-                        if (farmValue instanceof Long) {
-                            isMatch = ((Long) farmValue).intValue() == farm;
-                            Log.d(TAG, "Comparing as Long: " + farmValue + " == " + farm + " ? " + isMatch);
-                        } 
-                        // Compare as integer
-                        else if (farmValue instanceof Integer) {
-                            isMatch = ((Integer) farmValue) == farm;
-                            Log.d(TAG, "Comparing as Integer: " + farmValue + " == " + farm + " ? " + isMatch);
-                        } 
-                        // Compare as string
-                        else if (farmValue instanceof String) {
-                            isMatch = Integer.parseInt((String) farmValue) == farm;
-                            Log.d(TAG, "Comparing as String: " + farmValue + " == " + farm + " ? " + isMatch);
-                        }
-                        // Compare as Double or other numeric type
-                        else if (farmValue instanceof Number) {
-                            isMatch = ((Number) farmValue).intValue() == farm;
-                            Log.d(TAG, "Comparing as Number: " + farmValue + " == " + farm + " ? " + isMatch);
-                        }
-                        
-                        // If this document is for our farm
-                        if (isMatch) {
-                            Log.d(TAG, "Found matching farm document: " + doc.getId());
+        // Listen for new data in Realtime Database
+        sensorListener = sensorsRef.orderByKey().limitToLast(1)
+            .addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (!dataSnapshot.exists()) {
+                        Log.d(TAG, "No sensor data available");
+                        return;
+                    }
+
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        try {
+                            // Get the push ID
+                            String pushId = snapshot.getKey();
+                            Log.d(TAG, "Latest data push ID: " + pushId);
                             
-                            // Get the timestamp to find the latest document
-                            Object createdAt = doc.get(FIELD_CREATED_AT);
-                            if (createdAt == null) {
-                                Log.d(TAG, "Document " + doc.getId() + " has null createdAt value");
-                                continue;
+                            // Get the data
+                            Map<String, Object> sensorData = (Map<String, Object>) snapshot.getValue();
+                            if (sensorData != null) {
+                                // Check if this data belongs to the current farm
+                                String dataFarm = sensorData.get("farm").toString();
+                                if (dataFarm.equals(String.valueOf(farm))) {
+                                    processSensorData(sensorData);
+                                }
                             }
-                            
-                            long timestamp = 0;
-                            
-                            if (createdAt instanceof Long) {
-                                timestamp = (Long) createdAt;
-                            } else if (createdAt instanceof Integer) {
-                                timestamp = ((Integer) createdAt).longValue();
-                            } else if (createdAt instanceof String) {
-                                // If it's a string timestamp, just use the most recent document found
-                                // We could implement proper string timestamp comparison here if needed
-                                latestDoc = doc;
-                                Log.d(TAG, "Using document with string timestamp: " + createdAt);
-                                break;
-                            } else if (createdAt instanceof com.google.firebase.Timestamp) {
-                                timestamp = ((com.google.firebase.Timestamp) createdAt).toDate().getTime();
-                            }
-                            
-                            // Keep track of the latest document
-                            if (timestamp > latestTimestamp) {
-                                latestTimestamp = timestamp;
-                                latestDoc = doc;
-                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error processing sensor data", e);
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error processing document: " + doc.getId(), e);
                     }
                 }
-                
-                // Process the latest document if found
-                if (latestDoc != null) {
-                    Log.d(TAG, "Processing latest document: " + latestDoc.getId());
-                    processSensorData(latestDoc);
-                    
-                    // Set up a listener for future changes
-                    setupDocumentListener(latestDoc.getReference());
-                } else {
-                    Log.d(TAG, "No matching documents found for farm: " + farm);
-                    Log.d(TAG, "This suggests either no farm data exists or there's a data type mismatch.");
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.e(TAG, "Error reading data", databaseError.toException());
                     if (getContext() != null) {
-                        // Remove this toast message
-                        // Toast.makeText(getContext(), "No sensor data available for Farm #" + farm, 
-                        //              Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Error: " + databaseError.getMessage(), 
+                                     Toast.LENGTH_SHORT).show();
                     }
                 }
-            } else {
-                Log.d(TAG, "No sensor data available in the collection");
-                if (getContext() != null) {
-                    // Remove this toast message
-                    // Toast.makeText(getContext(), "No sensor data available", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }).addOnFailureListener(e -> {
-            Log.e(TAG, "Error getting sensor data", e);
-            if (getContext() != null) {
-                Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+            });
     }
-    
-    private void setupDocumentListener(com.google.firebase.firestore.DocumentReference docRef) {
-        sensorListener = docRef.addSnapshotListener((documentSnapshot, error) -> {
-            if (error != null) {
-                Log.e(TAG, "Error listening for document updates", error);
-                return;
-            }
-            
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                Log.d(TAG, "Document updated: " + documentSnapshot.getId());
-                processSensorData(documentSnapshot);
-            }
-        });
-    }
-    
-    private void processSensorData(com.google.firebase.firestore.DocumentSnapshot document) {
+
+    private void processSensorData(Map<String, Object> sensorData) {
         try {
-            // Define field names as constants to avoid typos
-            final String FIELD_BATCH_ID = "batch_id";
-            final String FIELD_FARM = "farm";
-            final String FIELD_BATTERY_LEVEL = "battery_level";
-            final String FIELD_CREATED_AT = "createdAt";
-            final String FIELD_GROW_LIGHTS_STATUS = "grow_lights_status";
-            final String FIELD_HUMIDITY = "humidity";
-            final String FIELD_LAYER_1 = "layer_1";
-            final String FIELD_LAYER_2 = "layer_2";
-            final String FIELD_LAYER_3 = "layer_3";
-            final String FIELD_LIGHT = "light";
-            final String FIELD_PH_LEVEL = "ph_level";
-            final String FIELD_TEMPERATURE = "temperature";
-            final String FIELD_UPDATED_AT = "updatedAt";
-            final String FIELD_WATER_LEVEL = "water_level";
-            final String FIELD_WATER_PUMP_STATUS = "water_pump_status";
-            
-            // Log document data for debugging
-            Log.d(TAG, "Document data: " + document.getData());
-            
             // Create a SensorData object and set all the values
-            SensorData sensorData = new SensorData();
-            sensorData.setId(document.getId());
+            SensorData data = new SensorData();
             
-            // Handle potential missing fields or type mismatches
-            if (document.contains(FIELD_BATCH_ID)) {
-                Object batchId = document.get(FIELD_BATCH_ID);
-                if (batchId instanceof Long) {
-                    sensorData.setBatchId(((Long) batchId).intValue());
-                } else if (batchId instanceof Integer) {
-                    sensorData.setBatchId((Integer) batchId);
-                } else if (batchId instanceof String) {
-                    sensorData.setBatchId(Integer.parseInt((String) batchId));
-                }
-            }
+            // Set basic fields
+            data.setFarm(Integer.parseInt(sensorData.get("farm").toString()));
+            data.setBatteryLevel(Integer.parseInt(sensorData.get("battery_level").toString()));
+            data.setGrowLightsStatus(sensorData.get("grow_lights_status").toString());
             
-            if (document.contains(FIELD_FARM)) {
-                Object farmValue = document.get(FIELD_FARM);
-                if (farmValue instanceof Long) {
-                    sensorData.setFarm(((Long) farmValue).intValue());
-                } else if (farmValue instanceof Integer) {
-                    sensorData.setFarm((Integer) farmValue);
-                } else if (farmValue instanceof String) {
-                    sensorData.setFarm(Integer.parseInt((String) farmValue));
-                }
-            }
+            // Set nested objects
+            data.setHumidity((Map<String, Object>) sensorData.get("humidity"));
+            data.setLayer1((Map<String, Object>) sensorData.get("layer_1"));
+            data.setLayer2((Map<String, Object>) sensorData.get("layer_2"));
+            data.setLayer3((Map<String, Object>) sensorData.get("layer_3"));
+            data.setLight((Map<String, Object>) sensorData.get("light"));
+            data.setPhLevel((Map<String, Object>) sensorData.get("ph_level"));
+            data.setTemperature((Map<String, Object>) sensorData.get("temperature"));
+            data.setWaterLevel((Map<String, Object>) sensorData.get("water_level"));
+            data.setWaterPumpStatus((Map<String, Object>) sensorData.get("water_pump_status"));
             
-            if (document.contains(FIELD_BATTERY_LEVEL)) {
-                Object batteryLevel = document.get(FIELD_BATTERY_LEVEL);
-                if (batteryLevel instanceof Long) {
-                    sensorData.setBatteryLevel(((Long) batteryLevel).intValue());
-                } else if (batteryLevel instanceof Integer) {
-                    sensorData.setBatteryLevel((Integer) batteryLevel);
-                } else if (batteryLevel instanceof String) {
-                    sensorData.setBatteryLevel(Integer.parseInt((String) batteryLevel));
-                }
-            }
-            
-            // Handle timestamp fields
-            if (document.contains(FIELD_CREATED_AT)) {
-                com.google.firebase.Timestamp timestamp = document.getTimestamp(FIELD_CREATED_AT);
-                if (timestamp != null) {
-                    // Format the timestamp for display
-                    String formattedDate = new java.text.SimpleDateFormat("MMM d, yyyy h:mm a", 
-                                  java.util.Locale.getDefault()).format(timestamp.toDate());
-                    sensorData.setCreatedAt(formattedDate);
-                    Log.d(TAG, "CreatedAt timestamp: " + timestamp.toDate() + " formatted as: " + formattedDate);
-                } else {
-                    // Fallback to string if not a timestamp
-                    sensorData.setCreatedAt(document.getString(FIELD_CREATED_AT));
-                    Log.d(TAG, "CreatedAt is not a timestamp, using string value");
-                }
-            }
-            
-            if (document.contains(FIELD_UPDATED_AT)) {
-                com.google.firebase.Timestamp timestamp = document.getTimestamp(FIELD_UPDATED_AT);
-                if (timestamp != null) {
-                    // Format the timestamp for display
-                    String formattedDate = new java.text.SimpleDateFormat("MMM d, yyyy h:mm a", 
-                                  java.util.Locale.getDefault()).format(timestamp.toDate());
-                    sensorData.setUpdatedAt(formattedDate);
-                    Log.d(TAG, "UpdatedAt timestamp: " + timestamp.toDate() + " formatted as: " + formattedDate);
-                } else {
-                    // Fallback to string if not a timestamp
-                    sensorData.setUpdatedAt(document.getString(FIELD_UPDATED_AT));
-                    Log.d(TAG, "UpdatedAt is not a timestamp, using string value");
-                }
-            }
-            
-            sensorData.setGrowLightsStatus(document.getString(FIELD_GROW_LIGHTS_STATUS));
-            sensorData.setHumidity((Map<String, Object>) document.get(FIELD_HUMIDITY));
-            sensorData.setLayer1((Map<String, Object>) document.get(FIELD_LAYER_1));
-            sensorData.setLayer2((Map<String, Object>) document.get(FIELD_LAYER_2));
-            sensorData.setLayer3((Map<String, Object>) document.get(FIELD_LAYER_3));
-            sensorData.setLight((Map<String, Object>) document.get(FIELD_LIGHT));
-            sensorData.setPhLevel((Map<String, Object>) document.get(FIELD_PH_LEVEL));
-            sensorData.setTemperature((Map<String, Object>) document.get(FIELD_TEMPERATURE));
-            sensorData.setWaterLevel((Map<String, Object>) document.get(FIELD_WATER_LEVEL));
-            sensorData.setWaterPumpStatus((Map<String, Object>) document.get(FIELD_WATER_PUMP_STATUS));
-            
-            Log.d(TAG, "Successfully parsed sensor data for farm: " + farm);
-            updateUI(sensorData);
+            // Update UI with the new data
+            updateUI(data);
             
         } catch (Exception e) {
             Log.e(TAG, "Error parsing sensor data", e);
@@ -420,68 +253,141 @@ public class SensorFragment extends Fragment {
         }
     }
 
-    private void updateUI(SensorData sensorData) {
-        if (sensorData == null) return;
+    private void updateFaultIndicator(View indicator, String faultStatus) {
+        if (faultStatus.equals("none")) {
+            indicator.setBackgroundResource(R.drawable.circle_background);
+        } else {
+            indicator.setBackgroundResource(R.drawable.circle_background_red);
+        }
+    }
 
-        // Update Layer 3
-        textMoistureL3.setText(String.format("%.0f", sensorData.getLayer3Moisture()));
-        updateMoistureStatus(textModerateL3, progressL3, sensorData.getLayer3Moisture());
-        
-        // Update Layer 2
-        textMoistureL2.setText(String.format("%.0f", sensorData.getLayer2Moisture()));
-        updateMoistureStatus(textModerateL2, progressL2, sensorData.getLayer2Moisture());
-        
-        // Update Layer 1
-        textMoistureL1.setText(String.format("%.0f", sensorData.getLayer1Moisture()));
-        updateMoistureStatus(textModerateL1, progressL1, sensorData.getLayer1Moisture());
-        
-        // Update Battery
-        batteryProgress.setProgress(sensorData.getBatteryLevel());
-        batteryPercentage.setText(sensorData.getBatteryLevel() + "%");
-        
-        // Update pH Level
-        phLevel.setText(String.format("%.1f", sensorData.getPhValue()));
-        
-        // Update Temperature
-        temperature.setText(String.format("%.1f°C", sensorData.getTemperatureValue()));
-        
-        // Update Humidity
-        humidity.setText(String.format("%.0f%%", sensorData.getHumidityValue()));
-        
-        // Update Light Intensity
-        lightIntensity.setText(String.format("%.0f lux", sensorData.getLightValue()));
-        
-        // Update Water Tank
-        updateWaterLevel(sensorData.getWaterLevelStatus());
-        
-        // Update Grow Lights
-        growLights.setText(sensorData.getGrowLightsStatus().toUpperCase());
-        growLights.setTextColor(getResources().getColor(
-            sensorData.getGrowLightsStatus().equalsIgnoreCase("on") ? 
-            android.R.color.holo_green_light : android.R.color.darker_gray));
-        
-        // Update Water Pump
-        waterPump.setText(sensorData.getWaterPumpStatusValue().toUpperCase());
-        waterPump.setTextColor(getResources().getColor(
-            sensorData.getWaterPumpStatusValue().equalsIgnoreCase("on") ? 
-            android.R.color.holo_green_light : android.R.color.darker_gray));
+    private void updateUI(SensorData sensorData) {
+        if (sensorData == null) {
+            Log.e(TAG, "Sensor data is null");
+            return;
+        }
+
+        try {
+            // Update Layer 3
+            if (textMoistureL3 != null) {
+                textMoistureL3.setText(String.format("%.0f", sensorData.getLayer3Moisture()));
+            }
+            if (textModerateL3 != null && progressL3 != null) {
+                updateMoistureStatus(textModerateL3, progressL3, sensorData.getLayer3Moisture());
+            }
+            if (faultIndicatorL3 != null) {
+                updateFaultIndicator(faultIndicatorL3, sensorData.getLayer3Fault());
+            }
+            
+            // Update Layer 2
+            if (textMoistureL2 != null) {
+                textMoistureL2.setText(String.format("%.0f", sensorData.getLayer2Moisture()));
+            }
+            if (textModerateL2 != null && progressL2 != null) {
+                updateMoistureStatus(textModerateL2, progressL2, sensorData.getLayer2Moisture());
+            }
+            if (faultIndicatorL2 != null) {
+                updateFaultIndicator(faultIndicatorL2, sensorData.getLayer2Fault());
+            }
+            
+            // Update Layer 1
+            if (textMoistureL1 != null) {
+                textMoistureL1.setText(String.format("%.0f", sensorData.getLayer1Moisture()));
+            }
+            if (textModerateL1 != null && progressL1 != null) {
+                updateMoistureStatus(textModerateL1, progressL1, sensorData.getLayer1Moisture());
+            }
+            if (faultIndicatorL1 != null) {
+                updateFaultIndicator(faultIndicatorL1, sensorData.getLayer1Fault());
+            }
+            
+            // Update Battery
+            if (batteryProgress != null && batteryPercentage != null) {
+                batteryProgress.setProgress(sensorData.getBatteryLevel());
+                batteryPercentage.setText(sensorData.getBatteryLevel() + "%");
+            }
+            
+            // Update pH Level
+            if (phLevel != null) {
+                phLevel.setText(String.format("%.1f", sensorData.getPhValue()));
+            }
+            if (faultIndicatorPh != null) {
+                updateFaultIndicator(faultIndicatorPh, sensorData.getPhFault());
+            }
+            
+            // Update Temperature
+            if (temperature != null) {
+                temperature.setText(String.format("%.1f°C", sensorData.getTemperatureValue()));
+            }
+            if (faultIndicatorTemp != null) {
+                updateFaultIndicator(faultIndicatorTemp, sensorData.getTemperatureFault());
+            }
+            
+            // Update Humidity
+            if (humidity != null) {
+                humidity.setText(String.format("%.0f%%", sensorData.getHumidityValue()));
+            }
+            if (faultIndicatorHumidity != null) {
+                updateFaultIndicator(faultIndicatorHumidity, sensorData.getHumidityFault());
+            }
+            
+            // Update Light Intensity
+            if (lightIntensity != null) {
+                lightIntensity.setText(String.format("%.0f lux", sensorData.getLightValue()));
+            }
+            if (faultIndicatorLight != null) {
+                updateFaultIndicator(faultIndicatorLight, sensorData.getLightFault());
+            }
+            
+            // Update Water Tank
+            if (waterTank != null) {
+                updateWaterLevel(sensorData.getWaterLevelStatus());
+            }
+            if (faultIndicatorWater != null) {
+                updateFaultIndicator(faultIndicatorWater, sensorData.getWaterLevelFault());
+            }
+            
+            // Update Grow Lights
+            if (growLights != null) {
+                growLights.setText(sensorData.getGrowLightsStatus().toUpperCase());
+                growLights.setTextColor(getResources().getColor(
+                    sensorData.getGrowLightsStatus().equalsIgnoreCase("on") ? 
+                    android.R.color.holo_green_light : android.R.color.darker_gray));
+            }
+            
+            // Update Water Pump
+            if (waterPump != null) {
+                waterPump.setText(sensorData.getWaterPumpStatusValue().toUpperCase());
+                waterPump.setTextColor(getResources().getColor(
+                    sensorData.getWaterPumpStatusValue().equalsIgnoreCase("on") ? 
+                    android.R.color.holo_green_light : android.R.color.darker_gray));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating UI: " + e.getMessage(), e);
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error updating sensor data", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
     
     private void updateMoistureStatus(TextView statusText, ProgressBar progressBar, float moistureValue) {
-        // Convert moisture value to percentage (assuming range 0-4000 maps to 0-100%)
-        int percentage = (int) (moistureValue / 40);
+        // Convert moisture value to percentage (0-4000 range)
+        int percentage = (int) ((moistureValue / 4000) * 100);
         progressBar.setProgress(percentage);
         
-        // Set status text and color based on moisture level
-        if (percentage < 30) {
-            statusText.setText("DRY");
-            statusText.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
-        } else if (percentage < 70) {
-            statusText.setText("MODERATE");
-            statusText.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
-        } else {
+        // Set status text and color based on moisture level thresholds
+        if (moistureValue <= 1500) {
             statusText.setText("WET");
-            statusText.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+            statusText.setBackgroundColor(Color.parseColor("#3498db")); // Blue
+            progressBar.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#3498db")));
+        } else if (moistureValue <= 3000) {
+            statusText.setText("MODERATE");
+            statusText.setBackgroundColor(Color.parseColor("#f39c12")); // Orange
+            progressBar.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#f39c12")));
+        } else {
+            statusText.setText("DRY");
+            statusText.setBackgroundColor(Color.parseColor("#e74c3c")); // Red
+            progressBar.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#e74c3c")));
         }
     }
     
@@ -503,7 +409,7 @@ public class SensorFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         if (sensorListener != null) {
-            sensorListener.remove();
+            sensorsRef.removeEventListener(sensorListener);
         }
     }
 } 
