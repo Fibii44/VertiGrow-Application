@@ -31,6 +31,20 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    
+    // Add packaging options to resolve duplicate file conflicts from JavaMail dependencies
+    packaging {
+        resources {
+            excludes += listOf(
+                "META-INF/NOTICE.md",
+                "META-INF/LICENSE.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/NOTICE",
+                "META-INF/LICENSE",
+                "META-INF/INDEX.LIST"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -41,6 +55,7 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-functions")
 
     // Other common dependencies
     implementation(libs.appcompat)
@@ -55,7 +70,6 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.5.0")
     //Google Icons
     implementation("com.google.android.material:material:1.9.0")
-
     implementation ("org.json:json:20231013")
 
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -18,50 +19,94 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginEnd="12dp"
-            android:src="@drawable/planticon"
-            android:tint="#8BC34A"
-            android:contentDescription="Plant icon" />
+            android:src="@android:drawable/ic_menu_myplaces"
+            android:contentDescription="User icon"
+            app:tint="#8BC34A" />
 
         <TextView
             android:id="@+id/dialog_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add New Farm"
+            android:text="Add New User"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/name_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         app:boxStrokeColor="#8BC34A"
         app:hintTextColor="#8BC34A"
+        app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+        app:startIconTint="#8BC34A"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edit_plant_name"
+            android:id="@+id/edit_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Plant Name"
-            android:inputType="text" />
+            android:hint="Full Name"
+            android:inputType="textPersonName"
+            android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/email_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:boxStrokeColor="#8BC34A"
+        app:hintTextColor="#8BC34A"
+        app:startIconDrawable="@android:drawable/ic_dialog_email"
+        app:startIconTint="#8BC34A"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email Address"
+            android:inputType="textEmailAddress"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Password info -->
+    <LinearLayout
+        android:id="@+id/password_info_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
+        android:layout_marginBottom="24dp"
+        android:visibility="gone">
+    </LinearLayout>
+
+    <!-- Original password field (hidden but kept for compatibility with edit user) -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         app:boxStrokeColor="#8BC34A"
         app:hintTextColor="#8BC34A"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
+        app:startIconTint="#8BC34A"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="#8BC34A"
+        android:visibility="gone">
 
-        <AutoCompleteTextView
-            android:id="@+id/dropdown_plant_type"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Plant Type"
-            android:inputType="none" />
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <View
@@ -89,7 +134,7 @@
             android:id="@+id/button_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save"
+            android:text="Create User"
             android:backgroundTint="#8BC34A"
             app:cornerRadius="8dp"
             android:paddingHorizontal="24dp"

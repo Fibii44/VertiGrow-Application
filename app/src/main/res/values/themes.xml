@@ -16,4 +16,42 @@
         <item name="windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
     </style>
+    
+    <!-- Custom style for circular image view -->
+    <style name="circleImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+    
+    <!-- Base style for action buttons -->
+    <style name="Widget.App.Button.ActionButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">36dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+    
+    <!-- Orange action button (Farms) -->
+    <style name="Widget.App.Button.ActionButton.Orange" parent="Widget.App.Button.ActionButton">
+        <item name="backgroundTint">#FFF3E0</item>
+        <item name="android:textColor">#E65100</item>
+        <item name="iconTint">#E65100</item>
+        <item name="rippleColor">#FFE0B2</item>
+    </style>
+    
+    <!-- Blue action button (Edit) -->
+    <style name="Widget.App.Button.ActionButton.Blue" parent="Widget.App.Button.ActionButton">
+        <item name="backgroundTint">#E3F2FD</item>
+        <item name="android:textColor">#0D47A1</item>
+        <item name="iconTint">#0D47A1</item>
+        <item name="rippleColor">#BBDEFB</item>
+    </style>
+    
+    <!-- Red action button (Delete) -->
+    <style name="Widget.App.Button.ActionButton.Red" parent="Widget.App.Button.ActionButton">
+        <item name="backgroundTint">#FFEBEE</item>
+        <item name="android:textColor">#C62828</item>
+        <item name="iconTint">#C62828</item>
+        <item name="rippleColor">#FFCDD2</item>
+    </style>
 </resources>

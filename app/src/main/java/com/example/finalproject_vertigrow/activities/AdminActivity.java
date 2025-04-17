@@ -1,22 +1,29 @@
 package com.example.finalproject_vertigrow.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.example.finalproject_vertigrow.R;
+import com.example.finalproject_vertigrow.fragments.ActivityLogsFragment;
+import com.example.finalproject_vertigrow.fragments.AdminDashboardFragment;
+import com.example.finalproject_vertigrow.fragments.AdminMenuFragment;
+import com.example.finalproject_vertigrow.fragments.UserManagementFragment;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class AdminActivity extends AppCompatActivity {
+public class AdminActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener {
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
-    private Button logoutButton;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,30 +40,44 @@ public class AdminActivity extends AppCompatActivity {
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        // Initialize views
-        logoutButton = findViewById(R.id.logoutButton);
-        logoutButton.setOnClickListener(v -> performSignOut());
+        // Setup bottom navigation
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnItemSelectedListener(this);
+
+        // Set default fragment
+        if (savedInstanceState == null) {
+            loadFragment(new AdminDashboardFragment());
+            bottomNavigationView.setSelectedItemId(R.id.navigation_admin_dashboard);
+        }
     }
 
-    private void performSignOut() {
-        // Sign out from Firebase
-        mAuth.signOut();
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Fragment fragment = null;
+        int itemId = item.getItemId();
 
-        // Sign out from Google
-        mGoogleSignInClient.signOut()
-                .addOnCompleteListener(this, task -> {
-                    // Revoke access to make sure user has to pick account next time
-                    mGoogleSignInClient.revokeAccess()
-                            .addOnCompleteListener(revokeTask -> {
-                                Toast.makeText(AdminActivity.this,
-                                        "Logged out successfully", Toast.LENGTH_SHORT).show();
+        if (itemId == R.id.navigation_admin_dashboard) {
+            fragment = new AdminDashboardFragment();
+        } else if (itemId == R.id.navigation_user_management) {
+            fragment = new UserManagementFragment();
+        } else if (itemId == R.id.navigation_activity_logs) {
+            fragment = new ActivityLogsFragment();
+        } else if (itemId == R.id.navigation_admin_menu) {
+            fragment = new AdminMenuFragment();
+        }
 
-                                // Redirect to login screen
-                                Intent intent = new Intent(AdminActivity.this, MainActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
-                                finish();
-                            });
-                });
+        return loadFragment(fragment);
+    }
+
+    private boolean loadFragment(Fragment fragment) {
+        if (fragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .commit();
+            return true;
+        }
+        return false;
     }
 }

@@ -10,7 +10,9 @@ import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.finalproject_vertigrow.R;
 import com.example.finalproject_vertigrow.adapters.FarmAdapter;
 import com.example.finalproject_vertigrow.models.Farm;
+import com.example.finalproject_vertigrow.models.LogEntry;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -91,6 +94,10 @@ public class FarmsFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView_farms);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FarmAdapter(requireActivity());
+        
+        // Set the edit click listener for farms
+        adapter.setOnEditClickListener(farm -> showEditFarmDialog(farm));
+        
         recyclerView.setAdapter(adapter);
         
         // Initialize Add Farm button
@@ -287,6 +294,98 @@ public class FarmsFragment extends Fragment {
         
         dialog.show();
     }
+
+    private void showEditFarmDialog(Farm farm) {
+        final Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_add_farm);
+        
+        // Change title to indicate we're editing
+        TextView titleTextView = dialog.findViewById(R.id.dialog_title);
+        if (titleTextView != null) {
+            titleTextView.setText("Edit Farm");
+        }
+        
+        // Initialize dialog views
+        TextInputEditText plantNameEditText = dialog.findViewById(R.id.edit_plant_name);
+        AutoCompleteTextView plantTypeDropdown = dialog.findViewById(R.id.dropdown_plant_type);
+        Button cancelButton = dialog.findViewById(R.id.button_cancel);
+        Button saveButton = dialog.findViewById(R.id.button_save);
+        
+        // Pre-fill with existing farm data
+        plantNameEditText.setText(farm.getPlantName());
+        plantTypeDropdown.setText(farm.getPlantType());
+        
+        // Setup plant type dropdown
+        String[] plantTypes = getResources().getStringArray(R.array.plant_types);
+        ArrayAdapter<String> plantTypeAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                plantTypes
+        );
+        plantTypeDropdown.setAdapter(plantTypeAdapter);
+        
+        // Setup button click listeners
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        
+        saveButton.setOnClickListener(v -> {
+            String plantName = plantNameEditText.getText() != null ? 
+                    plantNameEditText.getText().toString().trim() : "";
+            String plantType = plantTypeDropdown.getText() != null ? 
+                    plantTypeDropdown.getText().toString().trim() : "";
+            
+            // Validate inputs
+            if (plantName.isEmpty()) {
+                plantNameEditText.setError("Please enter a plant name");
+                return;
+            }
+            
+            if (plantType.isEmpty()) {
+                plantTypeDropdown.setError("Please select a plant type");
+                return;
+            }
+            
+            // Update farm data
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("plantName", plantName);
+            updates.put("plantType", plantType);
+            
+            // Update in Firestore
+            updateFarm(farm.getId(), updates);
+            
+            dialog.dismiss();
+        });
+        
+        dialog.show();
+    }
+    
+    private void updateFarm(String farmId, Map<String, Object> updates) {
+        if (farmsCollection == null) {
+            Log.e(TAG, "farmsCollection is null, cannot update farm");
+            return;
+        }
+        
+        Log.d(TAG, "Updating farm with ID: " + farmId);
+        
+        // Get the plant name for the log entry
+        String plantName = updates.containsKey("plantName") ? 
+                updates.get("plantName").toString() : "unknown";
+        
+        farmsCollection.document(farmId)
+                .update(updates)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Farm updated successfully");
+                    Toast.makeText(getContext(), "Farm updated successfully", Toast.LENGTH_SHORT).show();
+                    
+                    // Log the farm update action
+                    logFarmAction("FARM_UPDATE", "Updated farm " + plantName);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating farm: " + e.getMessage());
+                    Toast.makeText(getContext(), "Failed to update farm: " + e.getMessage(), 
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
     
     private void saveFarmToFirestore(Map<String, Object> farmData) {
         if (farmsCollection == null) {
@@ -317,11 +416,18 @@ public class FarmsFragment extends Fragment {
                     // Add farm number to the farm data
                     farmData.put("farm", nextFarm);
                     
+                    // Get the plant name for the log entry
+                    String plantName = farmData.containsKey("plantName") ? 
+                            farmData.get("plantName").toString() : "unknown";
+                    
                     // Now save the farm with the new farm number
                     farmsCollection.add(farmData)
                             .addOnSuccessListener(documentReference -> {
                                 Log.d(TAG, "Farm added successfully with ID: " + documentReference.getId());
                                 Toast.makeText(getContext(), "Farm added successfully", Toast.LENGTH_SHORT).show();
+                                
+                                // Log the farm add action
+                                logFarmAction("FARM_ADD", "Added new farm " + plantName);
                             })
                             .addOnFailureListener(e -> {
                                 Log.e(TAG, "Failed to add farm: " + e.getMessage());
@@ -334,6 +440,46 @@ public class FarmsFragment extends Fragment {
                     Log.e(TAG, "Error getting highest farm number: " + e.getMessage());
                     Toast.makeText(getContext(), "Error creating farm: " + e.getMessage(), 
                             Toast.LENGTH_SHORT).show();
+                });
+    }
+    
+    /**
+     * Log farm-related actions to Firestore
+     * 
+     * @param action The type of action (e.g., "FARM_ADD", "FARM_UPDATE", "FARM_DELETE")
+     * @param description A description of the action
+     */
+    private void logFarmAction(String action, String description) {
+        // Get the current user's ID
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
+        
+        // Get the current user's email for better identification
+        String userEmail = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getEmail() : "";
+        
+        // Add user email to description for better context
+        if (userEmail != null && !userEmail.isEmpty()) {
+            description += " by " + userEmail;
+        }
+        
+        LogEntry logEntry = new LogEntry(
+                null,               // id - will be assigned by Firestore
+                currentUserId,      // userId
+                null,               // farmId - could be set if specific to a farm
+                description,        // description
+                System.currentTimeMillis(), // timestamp
+                action              // type
+        );
+        
+        // Add log entry to Firestore
+        FirebaseFirestore.getInstance().collection("logs")
+                .add(logEntry)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "Log entry added with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error adding log entry: " + e.getMessage());
                 });
     }
 } 

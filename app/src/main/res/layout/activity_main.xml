@@ -14,11 +14,27 @@
         android:src="@drawable/app_logo"
         android:layout_marginBottom="32dp"/>
 
+    <!-- App Title Text -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="VertiGrow"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#8BC34A"
+        android:textAlignment="center"
+        android:layout_marginBottom="24dp"/>
+
     <!-- Email input with material design -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
+        app:helperText="Use this for manual account login"
+        app:helperTextEnabled="true"
+        app:helperTextTextColor="#8BC34A"
+        app:boxStrokeColor="#8BC34A"
+        app:hintTextColor="#8BC34A"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -26,8 +42,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Email"
+            android:textColorHint="?attr/colorControlNormal"
+            android:textColor="?android:attr/textColorPrimary"
             android:inputType="textEmailAddress"
             android:drawableStart="@drawable/ic_email"
+            android:drawableTint="#8BC34A"
             android:drawablePadding="8dp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -37,6 +56,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         app:passwordToggleEnabled="true"
+        app:passwordToggleTint="#8BC34A"
+        app:boxStrokeColor="#8BC34A"
+        app:hintTextColor="#8BC34A"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -44,8 +66,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Password"
+            android:textColorHint="?attr/colorControlNormal"
+            android:textColor="?android:attr/textColorPrimary"
             android:inputType="textPassword"
             android:drawableStart="@drawable/ic_lock"
+            android:drawableTint="#8BC34A"
             android:drawablePadding="8dp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -58,7 +83,7 @@
         android:textColor="@android:color/white"
         android:padding="12dp"
         android:layout_marginBottom="16dp"
-        app:backgroundTint="@android:color/holo_green_dark"/>
+        app:backgroundTint="#8BC34A"/>
 
     <!-- Divider with "OR" -->
     <LinearLayout
@@ -72,20 +97,21 @@
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_weight="1"
-            android:background="#CCCCCC"/>
+            android:background="#8BC34A" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="OR"
             android:layout_marginHorizontal="16dp"
-            android:textColor="#757575"/>
+            android:textColor="#8BC34A" 
+            android:textStyle="bold"/>
 
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_weight="1"
-            android:background="#CCCCCC"/>
+            android:background="#8BC34A" />
     </LinearLayout>
 
     <!-- Google Sign In button -->
@@ -102,28 +128,7 @@
         app:iconGravity="textStart"
         app:iconPadding="8dp"
         android:backgroundTint="@android:color/white"
-        app:strokeColor="#CCCCCC"
+        app:strokeColor="#8BC34A"
         app:strokeWidth="1dp"/>
-
-    <!-- Sign Up text and button -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Don't have an account? "/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/signUpButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sign Up"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:textColor="@android:color/holo_green_dark"/>
-    </LinearLayout>
 
 </LinearLayout>

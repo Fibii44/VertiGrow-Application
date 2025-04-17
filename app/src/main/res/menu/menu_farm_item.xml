@@ -9,8 +9,4 @@
         android:id="@+id/action_delete"
         android:title="Delete"
         app:showAsAction="never"/>
-    <item
-        android:id="@+id/action_irrigation"
-        android:title="View Irrigation Data"
-        app:showAsAction="never"/>
 </menu> 

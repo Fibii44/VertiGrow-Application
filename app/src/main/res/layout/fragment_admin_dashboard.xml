@@ -10,7 +10,7 @@
         android:id="@+id/text_dashboard_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Dashboard"
+        android:text="Admin Dashboard"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary"
@@ -21,7 +21,7 @@
         android:id="@+id/text_dashboard_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your Farming Overview"
+        android:text="System Overview"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorSecondary"
         android:layout_marginTop="4dp"
@@ -29,15 +29,15 @@
         app:layout_constraintTop_toBottomOf="@id/text_dashboard_title" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/card_racks"
+        android:id="@+id/card_users"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
         app:cardBackgroundColor="?android:attr/colorBackgroundFloating"
         app:cardCornerRadius="12dp"
         app:cardElevation="4dp"
-        app:layout_constraintEnd_toStartOf="@+id/card_active_farms"
+        app:layout_constraintEnd_toStartOf="@+id/card_farms"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_dashboard_subtitle">
@@ -46,37 +46,85 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp"
+            android:padding="16dp"
             android:gravity="center_vertical"
-            android:minHeight="150dp">
+            android:minHeight="110dp">
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@android:drawable/ic_menu_crop"
-                android:tint="#8BC34A" />
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@android:drawable/ic_menu_myplaces"
+                android:tint="@android:color/holo_blue_dark" />
 
             <TextView
-                android:id="@+id/text_racks_count"
+                android:id="@+id/text_users_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:text="0"
-                android:textColor="#8BC34A"
-                android:textSize="32sp"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="28sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total Farm Racks"
+                android:text="Total Users"
                 android:textColor="?android:attr/textColorSecondary"
                 android:textSize="14sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/card_active_farms"
+        android:id="@+id/card_farms"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        app:cardBackgroundColor="?android:attr/colorBackgroundFloating"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toStartOf="@+id/card_sensors"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toEndOf="@+id/card_users"
+        app:layout_constraintTop_toTopOf="@+id/card_users"
+        app:layout_constraintBottom_toBottomOf="@+id/card_users">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center_vertical"
+            android:minHeight="110dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@android:drawable/ic_menu_crop"
+                android:tint="@android:color/holo_green_dark" />
+
+            <TextView
+                android:id="@+id/text_farms_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="0"
+                android:textColor="@android:color/holo_green_dark"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Farms"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_sensors"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -85,32 +133,32 @@
         app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@+id/card_racks"
-        app:layout_constraintTop_toTopOf="@+id/card_racks"
-        app:layout_constraintBottom_toBottomOf="@+id/card_racks">
+        app:layout_constraintStart_toEndOf="@+id/card_farms"
+        app:layout_constraintTop_toTopOf="@+id/card_farms"
+        app:layout_constraintBottom_toBottomOf="@+id/card_farms">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp"
+            android:padding="16dp"
             android:gravity="center_vertical"
-            android:minHeight="150dp">
+            android:minHeight="110dp">
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:src="@android:drawable/ic_menu_compass"
-                android:tint="#FF9800" />
+                android:tint="@android:color/holo_orange_dark" />
 
             <TextView
-                android:id="@+id/text_active_farms_count"
+                android:id="@+id/text_sensors_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:text="0"
-                android:textColor="#FF9800"
-                android:textSize="32sp"
+                android:textColor="@android:color/holo_orange_dark"
+                android:textSize="28sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -122,31 +170,6 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
     
-    <!-- These are hidden in code, kept here for compatibility -->
-    <TextView
-        android:id="@+id/text_recent_activities"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Recent Activities"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="?android:attr/textColorPrimary"
-        android:layout_marginTop="24dp"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_racks" />
-        
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_activities"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/text_recent_activities"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-        
     <ProgressBar
         android:id="@+id/progress_loading"
         android:layout_width="wrap_content"

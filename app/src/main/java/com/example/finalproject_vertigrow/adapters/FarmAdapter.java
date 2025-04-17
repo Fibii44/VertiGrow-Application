@@ -22,7 +22,13 @@ import com.example.finalproject_vertigrow.fragments.SensorFragment;
 import com.example.finalproject_vertigrow.fragments.NoSensorsFragment;
 import com.example.finalproject_vertigrow.fragments.IrrigationFragment;
 import com.example.finalproject_vertigrow.models.Farm;
+import com.example.finalproject_vertigrow.models.LogEntry;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -30,25 +36,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder> {
+    private static final String TAG = "FarmAdapter";
     private List<Farm> farms = new ArrayList<>();
     private FragmentActivity activity;
     private CollectionReference farmsRef;
+    private DatabaseReference sensorsRef;
     private String currentUserId;
     private OnFarmMoreOptionsListener listener;
+    private OnEditClickListener editClickListener;
 
     // Interface for handling farm options
     public interface OnFarmMoreOptionsListener {
         void onFarmMoreOptions(Farm farm);
     }
+    
+    // Interface for handling edit button clicks
+    public interface OnEditClickListener {
+        void onEditClick(Farm farm);
+    }
 
     public FarmAdapter(FragmentActivity activity) {
         this.activity = activity;
         this.farmsRef = FirebaseFirestore.getInstance().collection("farms");
+        this.sensorsRef = FirebaseDatabase.getInstance().getReference("sensors");
         this.currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
     public void setOnFarmMoreOptionsListener(OnFarmMoreOptionsListener listener) {
         this.listener = listener;
+    }
+    
+    public void setOnEditClickListener(OnEditClickListener listener) {
+        this.editClickListener = listener;
     }
 
     public void setFarms(List<Farm> farms) {
@@ -73,15 +92,31 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
     public void onBindViewHolder(@NonNull FarmViewHolder holder, int position) {
         Farm farm = farms.get(position);
         
-        // Set farm ID
+        // Set farm data
         holder.farmId.setText("Farm #" + farm.getFarm());
-        
-        // Set plant name and type
         holder.plantName.setText(farm.getPlantName());
         holder.plantType.setText(farm.getPlantType());
         
-        // Check for sensor data existence and update farm online status
-        checkSensorDataAndUpdateStatus(farm, holder);
+        // Update UI based on online status
+        if (farm.isOnline()) {
+            // Update UI to show online status
+            holder.onlineStatus.setImageResource(R.drawable.ic_online);
+            holder.onlineStatus.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), 
+                android.R.color.holo_green_dark));
+            holder.onlineStatusText.setText("Online");
+            holder.onlineStatusText.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), 
+                android.R.color.holo_green_dark));
+            Log.d(TAG, "Farm " + farm.getFarm() + " is online (has sensor data)");
+        } else {
+            // Update UI to show offline status
+            holder.onlineStatus.setImageResource(R.drawable.ic_offline);
+            holder.onlineStatus.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), 
+                android.R.color.holo_red_dark));
+            holder.onlineStatusText.setText("Offline");
+            holder.onlineStatusText.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), 
+                android.R.color.holo_red_dark));
+            Log.d(TAG, "Farm " + farm.getFarm() + " is offline (no sensor data)");
+        }
         
         // Set click listener for more options
         holder.buttonMore.setOnClickListener(v -> {
@@ -101,98 +136,137 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
     }
 
     private void checkSensorDataAndUpdateStatus(Farm farm, FarmViewHolder holder) {
-        // Query Firestore for sensor data for this farm
-        FirebaseFirestore.getInstance()
-            .collection("sensors")
-            .whereEqualTo("farm", farm.getFarm())
-            .limit(1)  // We only need to know if at least one sensor document exists
-            .get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                    // Sensor data exists, update online status to true
-                    farm.setOnline(true);
+        Log.d(TAG, "Checking online status for farm: " + farm.getFarm());
+        
+        // Query Realtime Database for sensor data for this farm
+        sensorsRef.orderByChild("farm").equalTo(farm.getFarm())
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "Received sensor data snapshot for farm " + farm.getFarm() + 
+                          ", exists: " + dataSnapshot.exists() + 
+                          ", children count: " + dataSnapshot.getChildrenCount());
                     
-                    // Update UI to show online status
-                    holder.onlineStatus.setImageResource(R.drawable.ic_online);
-                    holder.onlineStatus.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), 
-                        android.R.color.holo_green_dark));
-                    Log.d("FarmAdapter", "Farm " + farm.getFarm() + " is online (has sensor data)");
+                    boolean isOnline = dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0;
+                    
+                    // Update the farm's online status
+                    farm.setOnline(isOnline);
+                    
+                    // Update UI based on online status
+                    if (isOnline) {
+                        // Update UI to show online status
+                        holder.onlineStatus.setImageResource(R.drawable.ic_online);
+                        holder.onlineStatus.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), 
+                            android.R.color.holo_green_dark));
+                        holder.onlineStatusText.setText("Online");
+                        holder.onlineStatusText.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), 
+                            android.R.color.holo_green_dark));
+                        Log.d(TAG, "Farm " + farm.getFarm() + " is online (has sensor data)");
+                    } else {
+                        // Update UI to show offline status
+                        holder.onlineStatus.setImageResource(R.drawable.ic_offline);
+                        holder.onlineStatus.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), 
+                            android.R.color.holo_red_dark));
+                        holder.onlineStatusText.setText("Offline");
+                        holder.onlineStatusText.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), 
+                            android.R.color.holo_red_dark));
+                        Log.d(TAG, "Farm " + farm.getFarm() + " is offline (no sensor data)");
+                    }
                     
                     // Update farm document in Firestore
-                    farmsRef.document(farm.getId()).update("online", true);
-                } else {
-                    // No sensor data exists
-                    farm.setOnline(false);
-                    
-                    // Update UI to show offline status
-                    holder.onlineStatus.setImageResource(R.drawable.ic_offline);
-                    holder.onlineStatus.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), 
-                        android.R.color.holo_red_dark));
-                    Log.d("FarmAdapter", "Farm " + farm.getFarm() + " is offline (no sensor data)");
-                    
-                    // Update farm document in Firestore
-                    farmsRef.document(farm.getId()).update("online", false);
+                    farmsRef.document(farm.getId()).update("isOnline", isOnline)
+                        .addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "Successfully updated online status in Firestore for farm " + farm.getFarm());
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Error updating farm online status in Firestore: " + e.getMessage());
+                        });
                 }
-            })
-            .addOnFailureListener(e -> {
-                // Query failed, default to using stored online status
-                Log.e("FarmAdapter", "Error checking sensors for farm " + farm.getFarm() + ": " + e.getMessage());
-                
-                // Set online status icon based on stored value
-                if (farm.isOnline()) {
-                    holder.onlineStatus.setImageResource(R.drawable.ic_online);
-                    holder.onlineStatus.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), 
-                        android.R.color.holo_green_dark));
-                    Log.d("FarmAdapter", "Farm " + farm.getFarm() + " is using stored online status: online");
-                } else {
-                    holder.onlineStatus.setImageResource(R.drawable.ic_offline);
-                    holder.onlineStatus.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), 
-                        android.R.color.holo_red_dark));
-                    Log.d("FarmAdapter", "Farm " + farm.getFarm() + " is using stored online status: offline");
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Query failed, default to using stored online status
+                    Log.e(TAG, "Error checking sensors for farm " + farm.getFarm() + ": " + databaseError.getMessage());
+                    
+                    // Set online status icon based on stored value
+                    if (farm.isOnline()) {
+                        holder.onlineStatus.setImageResource(R.drawable.ic_online);
+                        holder.onlineStatus.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), 
+                            android.R.color.holo_green_dark));
+                        holder.onlineStatusText.setText("Online");
+                        holder.onlineStatusText.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), 
+                            android.R.color.holo_green_dark));
+                        Log.d(TAG, "Farm " + farm.getFarm() + " is using stored online status: online");
+                    } else {
+                        holder.onlineStatus.setImageResource(R.drawable.ic_offline);
+                        holder.onlineStatus.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), 
+                            android.R.color.holo_red_dark));
+                        holder.onlineStatusText.setText("Offline");
+                        holder.onlineStatusText.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), 
+                            android.R.color.holo_red_dark));
+                        Log.d(TAG, "Farm " + farm.getFarm() + " is using stored online status: offline");
+                    }
                 }
             });
     }
 
     private void checkFarmSensorData(int farmNumber) {
-        // Query Firestore for sensor data for this farm
-        FirebaseFirestore.getInstance()
-            .collection("sensors")
-            .whereEqualTo("farm", farmNumber)
-            .limit(1)  // We only need to know if at least one sensor document exists
-            .get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                    // Sensor data exists for this farm
-                    // Create and navigate to the sensor fragment
-                    SensorFragment sensorFragment = SensorFragment.newInstance(farmNumber);
-                    activity.getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, sensorFragment)
-                        .addToBackStack(null)
-                        .commit();
-                } else {
-                    // No sensor data exists for this farm
-                    // Create and navigate to the no sensors fragment
-                    String title = "No Sensor Data Available";
-                    String description = "Farm #" + farmNumber + " does not have any sensors connected or the sensors are not sending data currently.";
+        // Show progress if needed
+        // activity.showProgress(); // Uncomment if you have a progress indicator
+        
+        // Query Realtime Database for sensor data for this farm
+        sensorsRef.orderByChild("farm").equalTo(farmNumber)
+            .limitToFirst(1)  // We only need to know if at least one sensor document exists
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    // activity.hideProgress(); // Uncomment if you have a progress indicator
                     
-                    NoSensorsFragment noSensorsFragment = NoSensorsFragment.newInstance(title, description);
-                    activity.getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, noSensorsFragment)
-                        .addToBackStack(null)
-                        .commit();
+                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                        // Sensor data exists for this farm
+                        Log.d(TAG, "Navigating to SensorFragment for farm " + farmNumber);
+                        
+                        // Create and navigate to the sensor fragment
+                        SensorFragment sensorFragment = SensorFragment.newInstance(farmNumber);
+                        activity.getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, sensorFragment)
+                            .addToBackStack(null)
+                            .commit();
+                    } else {
+                        // No sensor data exists for this farm
+                        Log.d(TAG, "Navigating to NoSensorsFragment for farm " + farmNumber);
+                        
+                        // Create and navigate to the no sensors fragment
+                        String title = "No Sensor Data Available";
+                        String description = "Farm #" + farmNumber + " does not have any sensors connected or the sensors are not sending data currently.";
+                        
+                        NoSensorsFragment noSensorsFragment = NoSensorsFragment.newInstance(title, description);
+                        activity.getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, noSensorsFragment)
+                            .addToBackStack(null)
+                            .commit();
+                    }
                 }
-            })
-            .addOnFailureListener(e -> {
-                // Query failed
-                Toast.makeText(activity, "Error checking sensors: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // activity.hideProgress(); // Uncomment if you have a progress indicator
+                    Log.e(TAG, "Error checking sensor data: " + databaseError.getMessage());
+                    Toast.makeText(activity, "Error checking sensors: " + databaseError.getMessage(), 
+                            Toast.LENGTH_SHORT).show();
+                }
             });
     }
 
     private void showEditDialog(Farm farm) {
-        // TODO: Implement edit dialog
-        Toast.makeText(activity, "Edit farm: " + farm.getPlantName(), Toast.LENGTH_SHORT).show();
+        if (editClickListener != null) {
+            editClickListener.onEditClick(farm);
+        } else {
+            // Fallback if no listener is set
+            Toast.makeText(activity, "Edit farm: " + farm.getPlantName(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void deleteFarm(Farm farm) {
@@ -204,6 +278,13 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
                     // Remove from local list
                     farms.remove(farm);
                     notifyDataSetChanged();
+                    
+                    // Create a detailed log message for the farm deletion
+                    String description = "Deleted Farm #" + farm.getFarm() + ": '" + 
+                            farm.getPlantName() + "' (Type: " + farm.getPlantType() + ")";
+                    
+                    // Log the farm deletion
+                    logFarmAction("FARM_DELETE", description);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(activity, "Failed to delete farm: " + e.getMessage(),
@@ -223,21 +304,21 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
     }
 
     private void showPopupMenu(View view, Farm farm) {
-        PopupMenu popup = new PopupMenu(activity, view);
+        PopupMenu popup = new PopupMenu(view.getContext(), view);
         popup.inflate(R.menu.menu_farm_item);
         
+        // Set up click handler for menu items
         popup.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
+            
             if (id == R.id.action_edit) {
                 showEditDialog(farm);
                 return true;
             } else if (id == R.id.action_delete) {
                 deleteFarm(farm);
                 return true;
-            } else if (id == R.id.action_irrigation) {
-                showIrrigationData(farm.getFarm());
-                return true;
             }
+            
             return false;
         });
         
@@ -253,7 +334,9 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
         private TextView farmId;
         private TextView plantName;
         private TextView plantType;
+        private TextView onlineStatusText;
         private ImageView onlineStatus;
+        private ImageView plantIcon;
         private ImageButton buttonMore;
 
         public FarmViewHolder(@NonNull View itemView) {
@@ -261,8 +344,50 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
             farmId = itemView.findViewById(R.id.text_farm_id);
             plantName = itemView.findViewById(R.id.text_plant_name);
             plantType = itemView.findViewById(R.id.text_plant_type);
+            onlineStatusText = itemView.findViewById(R.id.text_online_status);
             onlineStatus = itemView.findViewById(R.id.image_online_status);
+            plantIcon = itemView.findViewById(R.id.image_plant_icon);
             buttonMore = itemView.findViewById(R.id.button_more);
         }
+    }
+
+    /**
+     * Log farm-related actions to Firestore
+     * 
+     * @param action The type of action (e.g., "FARM_ADD", "FARM_UPDATE", "FARM_DELETE")
+     * @param description A description of the action
+     */
+    private void logFarmAction(String action, String description) {
+        // Get the current user's ID
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
+        
+        // Get the current user's email for better identification
+        String userEmail = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getEmail() : "";
+        
+        // Add user email to description for better context
+        if (userEmail != null && !userEmail.isEmpty()) {
+            description += " by " + userEmail;
+        }
+        
+        LogEntry logEntry = new LogEntry(
+                null,               // id - will be assigned by Firestore
+                currentUserId,      // userId
+                null,               // farmId - could be set if specific to a farm
+                description,        // description
+                System.currentTimeMillis(), // timestamp
+                action              // type
+        );
+        
+        // Add log entry to Firestore
+        FirebaseFirestore.getInstance().collection("logs")
+                .add(logEntry)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("FarmAdapter", "Log entry added with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FarmAdapter", "Error adding log entry: " + e.getMessage());
+                });
     }
 } 

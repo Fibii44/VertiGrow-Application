@@ -24,7 +24,10 @@
             android:name=".activities.UserActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.SignUpActivity"
+            android:name=".activities.PasswordChangeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.LinkAccountActivity"
             android:exported="false" />
         <activity
             android:name=".activities.MainActivity"

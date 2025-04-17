@@ -12,5 +12,33 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+    
+    <!-- Dark mode overrides for button styles -->
+    <!-- Orange action button (Farms) for dark mode -->
+    <style name="Widget.App.Button.ActionButton.Orange" parent="Widget.App.Button.ActionButton">
+        <item name="backgroundTint">#5D4037</item>
+        <item name="android:textColor">#FFCC80</item>
+        <item name="iconTint">#FFCC80</item>
+        <item name="rippleColor">#8D6E63</item>
+    </style>
+    
+    <!-- Blue action button (Edit) for dark mode -->
+    <style name="Widget.App.Button.ActionButton.Blue" parent="Widget.App.Button.ActionButton">
+        <item name="backgroundTint">#263238</item>
+        <item name="android:textColor">#81D4FA</item>
+        <item name="iconTint">#81D4FA</item>
+        <item name="rippleColor">#455A64</item>
+    </style>
+    
+    <!-- Red action button (Delete) for dark mode -->
+    <style name="Widget.App.Button.ActionButton.Red" parent="Widget.App.Button.ActionButton">
+        <item name="backgroundTint">#3E2723</item>
+        <item name="android:textColor">#EF9A9A</item>
+        <item name="iconTint">#EF9A9A</item>
+        <item name="rippleColor">#5D4037</item>
     </style>
 </resources>
