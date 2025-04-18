@@ -19,8 +19,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.sernlabs.vertigrow.ui.menu.ConfirmLogoutDialogFragment;
 
-public class AdminMenuFragment extends Fragment {
+public class AdminMenuFragment extends Fragment implements ConfirmLogoutDialogFragment.LogoutListener {
     
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
@@ -67,7 +68,17 @@ public class AdminMenuFragment extends Fragment {
         }
         
         // Set logout button click listener
-        logoutButton.setOnClickListener(v -> performSignOut());
+        logoutButton.setOnClickListener(v -> showLogoutConfirmationDialog());
+    }
+    
+    private void showLogoutConfirmationDialog() {
+        ConfirmLogoutDialogFragment dialogFragment = new ConfirmLogoutDialogFragment();
+        dialogFragment.show(getChildFragmentManager(), "LogoutConfirmDialog");
+    }
+    
+    @Override
+    public void onLogoutConfirmed() {
+        performSignOut();
     }
     
     private void performSignOut() {

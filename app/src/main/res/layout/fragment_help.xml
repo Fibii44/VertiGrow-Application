@@ -1,27 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="#F8F9FA">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/text_help"
+        <!-- Header Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Need Help?"
-            android:textAlignment="center"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/dashboard_gradient_bg"
+                android:padding="24dp">
+
+                <TextView
+                    android:id="@+id/text_help"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Need Help?"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Find answers to your questions"
+                    android:textColor="#E0FFFFFF"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/text_help" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    app:cardCornerRadius="28dp"
+                    app:cardBackgroundColor="#4CAF50"
+                    app:cardElevation="0dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="center"
+                        android:src="@android:drawable/ic_menu_help"
+                        app:tint="#FFFFFF" />
+                </androidx.cardview.widget.CardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
 
         <!-- Dashboard Guide -->
         <androidx.cardview.widget.CardView
@@ -29,9 +73,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
-            app:layout_constraintTop_toBottomOf="@id/text_help">
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
+            app:layout_constraintTop_toBottomOf="@id/card_header">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -45,12 +89,21 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@android:drawable/ic_menu_today"
-                        android:tint="#2196F3"
-                        android:layout_marginEnd="16dp" />
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="#E3F2FD"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@android:drawable/ic_menu_today"
+                            app:tint="#2196F3" />
+                    </androidx.cardview.widget.CardView>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -66,8 +119,8 @@
                     android:layout_height="wrap_content"
                     android:text="The Dashboard provides an overview of all your farms and their current status."
                     android:textSize="14sp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginTop="12dp"
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -75,7 +128,7 @@
                     android:text="• View system status indicators for water levels, temperature, and humidity"
                     android:textSize="14sp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -83,7 +136,7 @@
                     android:text="• See alerts for any issues requiring your attention"
                     android:textSize="14sp"
                     android:layout_marginTop="4dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -93,8 +146,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
             app:layout_constraintTop_toBottomOf="@id/card_dashboard_guide">
 
             <LinearLayout
@@ -109,12 +162,21 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@android:drawable/ic_menu_myplaces"
-                        android:tint="#4CAF50"
-                        android:layout_marginEnd="16dp" />
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="#E8F5E9"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_farm"
+                            app:tint="#4CAF50" />
+                    </androidx.cardview.widget.CardView>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -130,8 +192,8 @@
                     android:layout_height="wrap_content"
                     android:text="Manage all your vertical farms from one place."
                     android:textSize="14sp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginTop="12dp"
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -139,7 +201,7 @@
                     android:text="• Tap on a farm to view detailed sensor data for each layer"
                     android:textSize="14sp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -147,7 +209,7 @@
                     android:text="• Use the + button to add a new plant to your system"
                     android:textSize="14sp"
                     android:layout_marginTop="4dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -155,7 +217,7 @@
                     android:text="• Each farm card shows the plant name, type, and online status"
                     android:textSize="14sp"
                     android:layout_marginTop="4dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -165,8 +227,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
             app:layout_constraintTop_toBottomOf="@id/card_farms_guide">
 
             <LinearLayout
@@ -181,12 +243,21 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@android:drawable/ic_menu_recent_history"
-                        android:tint="#00BCD4"
-                        android:layout_marginEnd="16dp" />
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="#E0F7FA"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_drop"
+                            app:tint="#00BCD4" />
+                    </androidx.cardview.widget.CardView>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -202,8 +273,8 @@
                     android:layout_height="wrap_content"
                     android:text="View a complete history of irrigation and system activities."
                     android:textSize="14sp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginTop="12dp"
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -211,7 +282,7 @@
                     android:text="• Use the filter dropdown to view specific types of activities"
                     android:textSize="14sp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -219,7 +290,7 @@
                     android:text="• Select a date to view activities from a specific day"
                     android:textSize="14sp"
                     android:layout_marginTop="4dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -227,7 +298,7 @@
                     android:text="• Use the refresh button to update the logs with recent activities"
                     android:textSize="14sp"
                     android:layout_marginTop="4dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -237,8 +308,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
             app:layout_constraintTop_toBottomOf="@id/card_irrigation_guide">
 
             <LinearLayout
@@ -253,12 +324,21 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@android:drawable/ic_menu_manage"
-                        android:tint="#FF9800"
-                        android:layout_marginEnd="16dp" />
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="#FFF3E0"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@android:drawable/ic_menu_manage"
+                            app:tint="#FF9800" />
+                    </androidx.cardview.widget.CardView>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -274,8 +354,8 @@
                     android:layout_height="wrap_content"
                     android:text="Monitor detailed sensor readings for each farm and layer."
                     android:textSize="14sp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginTop="12dp"
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -283,7 +363,7 @@
                     android:text="• View soil moisture levels in each growing layer"
                     android:textSize="14sp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -291,7 +371,7 @@
                     android:text="• Monitor additional sensors: temperature, humidity, battery level"
                     android:textSize="14sp"
                     android:layout_marginTop="4dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -299,7 +379,7 @@
                     android:text="• Check the status of system components like grow lights and water pump"
                     android:textSize="14sp"
                     android:layout_marginTop="4dp"
-                    android:layout_marginStart="52dp" />
+                    android:layout_marginStart="56dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -310,8 +390,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
             app:layout_constraintTop_toBottomOf="@id/card_sensor_guide"
             app:layout_constraintBottom_toBottomOf="parent">
 
@@ -319,7 +399,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp"
+                android:padding="20dp"
                 android:background="#E8F5E9">
 
                 <TextView
@@ -337,16 +417,18 @@
                     android:textSize="14sp"
                     android:layout_marginTop="8dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_contact_support"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Contact Support"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="16dp"
-                    android:backgroundTint="#4CAF50" />
+                    android:backgroundTint="#4CAF50"
+                    app:cornerRadius="12dp"
+                    android:padding="12dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView> 
+</androidx.core.widget.NestedScrollView> 

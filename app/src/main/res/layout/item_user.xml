@@ -1,135 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_user"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="8dp"
-    android:layout_marginVertical="4dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp"
-    app:strokeWidth="0dp"
-    app:cardBackgroundColor="?attr/colorSurface"
-    android:clickable="true"
-    android:focusable="true">
+    android:layout_marginVertical="6dp"
+    android:layout_marginHorizontal="2dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="1dp"
+    app:strokeWidth="0dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
+        android:padding="16dp">
 
-        <!-- User avatar with initial circle -->
+        <!-- User Avatar -->
         <androidx.cardview.widget.CardView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="16dp"
-            app:cardCornerRadius="24dp"
+            android:id="@+id/avatar_container"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            app:cardCornerRadius="28dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="#8BC34A">
-            
+            app:cardBackgroundColor="#E8F5E9"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
             <TextView
                 android:id="@+id/text_user_initial"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
-                tools:text="J"/>
+                android:textColor="#4CAF50"
+                tools:text="J" />
         </androidx.cardview.widget.CardView>
 
-        <LinearLayout
+        <!-- User Information -->
+        <TextView
+            android:id="@+id/text_user_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginEnd="8dp">
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:textColor="#212121"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@id/button_more_options"
+            app:layout_constraintStart_toEndOf="@id/avatar_container"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="John Doe" />
+
+        <TextView
+            android:id="@+id/text_user_email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@id/text_user_name"
+            app:layout_constraintStart_toStartOf="@id/text_user_name"
+            app:layout_constraintTop_toBottomOf="@id/text_user_name"
+            tools:text="john.doe@example.com" />
+
+        <LinearLayout
+            android:id="@+id/container_join_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="@id/text_user_email"
+            app:layout_constraintTop_toBottomOf="@id/text_user_email">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_calendar"
+                app:tint="#4CAF50" />
 
             <TextView
-                android:id="@+id/text_user_name"
-                android:layout_width="match_parent"
+                android:id="@+id/text_join_date"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface"
-                android:ellipsize="end"
-                android:maxLines="1"
-                tools:text="Jane Doe"/>
+                android:layout_marginStart="4dp"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                tools:text="Joined: Jan 15, 2023" />
+        </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-                
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:src="@drawable/ic_email"
-                    android:tint="?android:attr/textColorSecondary"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="4dp"
-                    android:contentDescription="Email icon"/>
-                
-            <TextView
-                android:id="@+id/text_user_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="?android:attr/textColorSecondary"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                tools:text="user@example.com"/>
-            </LinearLayout>
+        <LinearLayout
+            android:id="@+id/container_user_role"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toEndOf="@id/container_join_date"
+            app:layout_constraintTop_toTopOf="@id/container_join_date"
+            app:layout_constraintBottom_toBottomOf="@id/container_join_date">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-                
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:src="@android:drawable/ic_menu_my_calendar"
-                    android:tint="?android:attr/textColorSecondary"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="4dp"
-                    android:contentDescription="Calendar icon"/>
-                
-                <TextView
-                    android:id="@+id/text_join_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="?android:attr/textColorSecondary"
-                    tools:text="Joined: Jul 15, 2023"/>
-            </LinearLayout>
+            <ImageView
+                android:id="@+id/icon_user_role"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_user_role"
+                app:tint="#2E7D32" />
 
             <TextView
                 android:id="@+id/text_user_role"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/pill_bg_green"
+                android:background="@drawable/bg_rounded_green_light"
                 android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:textColor="@android:color/white"
+                android:paddingVertical="2dp"
+                android:layout_marginStart="4dp"
+                android:textColor="#2E7D32"
                 android:textSize="12sp"
-                android:layout_marginTop="6dp"
-                android:textAllCaps="true"
-                tools:text="USER"/>
+                tools:text="Admin" />
         </LinearLayout>
 
+        <!-- More Options Button -->
         <ImageButton
             android:id="@+id/button_more_options"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_more_vert"
-            android:contentDescription="More Options"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="8dp" />
-    </LinearLayout>
+            android:contentDescription="More options"
+            android:src="@drawable/ic_more_vert"
+            app:tint="#757575"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView> 

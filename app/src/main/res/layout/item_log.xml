@@ -5,9 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="4dp"
+    android:layout_marginVertical="6dp"
     app:cardElevation="1dp"
-    app:cardCornerRadius="8dp">
+    app:cardCornerRadius="12dp"
+    app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -15,75 +16,125 @@
 
         <View
             android:id="@+id/action_indicator"
-            android:layout_width="4dp"
+            android:layout_width="6dp"
             android:layout_height="0dp"
-            android:background="@color/purple_500"
+            android:background="#4CAF50"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <TextView
-            android:id="@+id/text_log_action"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_type_indicator"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#E8F5E9"
             android:layout_marginStart="12dp"
             android:layout_marginTop="12dp"
-            android:textStyle="bold"
-            android:textSize="14sp"
             app:layout_constraintStart_toEndOf="@id/action_indicator"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/icon_action_type"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_menu_edit"
+                app:tint="#4CAF50" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/text_log_action"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#212121"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintStart_toEndOf="@id/card_type_indicator"
+            app:layout_constraintEnd_toStartOf="@id/text_log_timestamp"
+            app:layout_constraintTop_toTopOf="@id/card_type_indicator"
+            app:layout_constraintBottom_toBottomOf="@id/card_type_indicator"
             tools:text="FARM_ADD" />
 
         <TextView
             android:id="@+id/text_log_timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
             android:textSize="12sp"
-            android:textColor="?android:attr/textColorSecondary"
+            android:textColor="#757575"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="25 Nov 2023, 15:45:23" />
+            app:layout_constraintTop_toTopOf="@id/card_type_indicator"
+            app:layout_constraintBottom_toBottomOf="@id/card_type_indicator"
+            tools:text="25 Nov 2023, 15:45" />
 
         <TextView
             android:id="@+id/text_log_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="12dp"
             android:textSize="14sp"
+            android:textColor="#616161"
+            android:lineSpacingExtra="2dp"
             app:layout_constraintStart_toEndOf="@id/action_indicator"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_log_action"
+            app:layout_constraintTop_toBottomOf="@id/card_type_indicator"
             tools:text="Farm 'Hydroponics Lab' was created by user" />
 
-        <ImageView
-            android:id="@+id/icon_user"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
+        <View
+            android:id="@+id/divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
             android:layout_marginStart="12dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="#EEEEEE"
+            app:layout_constraintStart_toEndOf="@id/action_indicator"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_log_description"/>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_user_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#E3F2FD"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
             app:layout_constraintStart_toEndOf="@id/action_indicator"
-            app:layout_constraintTop_toBottomOf="@id/text_log_description"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:src="@android:drawable/ic_menu_myplaces"
-            app:tint="?android:attr/textColorSecondary" />
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageView
+                android:id="@+id/icon_user"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_user"
+                app:tint="#2196F3" />
+        </androidx.cardview.widget.CardView>
 
         <TextView
             android:id="@+id/text_log_user"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="12dp"
-            android:textSize="12sp"
-            android:textColor="?android:attr/textColorSecondary"
-            app:layout_constraintStart_toEndOf="@id/icon_user"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:textSize="13sp"
+            android:textColor="#757575"
+            app:layout_constraintStart_toEndOf="@id/card_user_icon"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/icon_user"
-            app:layout_constraintBottom_toBottomOf="@id/icon_user"
+            app:layout_constraintTop_toTopOf="@id/card_user_icon"
+            app:layout_constraintBottom_toBottomOf="@id/card_user_icon"
             tools:text="John Doe (john.doe@example.com)" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
