@@ -8,7 +8,7 @@
 
     <TextView
         android:id="@+id/text_menu_title"
-        android:layout_width="wrap_content"
+        android:layout_width="370dp"
         android:layout_height="wrap_content"
         android:text="Settings"
         android:textColor="?android:attr/textColorPrimary"
@@ -31,12 +31,14 @@
     <!-- Profile Option Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/profile_card"
-        android:layout_width="match_parent"
+        android:layout_width="370dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         app:cardBackgroundColor="?android:attr/colorBackgroundFloating"
         app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
+        app:cardElevation="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_menu_subtitle">
 
         <LinearLayout
@@ -57,9 +59,9 @@
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="24dp"
+                    android:layout_width="20dp"
                     android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_myplaces"
+                    android:src="@drawable/ic_profile"
                     android:tint="#FFFFFF" />
             </LinearLayout>
 
@@ -87,24 +89,20 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center_vertical"
-                android:src="@android:drawable/ic_media_play"
-                android:tint="?android:attr/textColorSecondary" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <!-- About Us Option Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/about_card"
-        android:layout_width="match_parent"
+        android:layout_width="370dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         app:cardBackgroundColor="?android:attr/colorBackgroundFloating"
         app:cardCornerRadius="12dp"
         app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profile_card">
 
         <LinearLayout
@@ -127,7 +125,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_info_details"
+                    android:src="@drawable/ic_info"
                     android:tint="#FFFFFF" />
             </LinearLayout>
 
@@ -155,24 +153,20 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center_vertical"
-                android:src="@android:drawable/ic_media_play"
-                android:tint="?android:attr/textColorSecondary" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <!-- Need Help Option Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/help_card"
-        android:layout_width="match_parent"
+        android:layout_width="370dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         app:cardBackgroundColor="?android:attr/colorBackgroundFloating"
         app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
+        app:cardElevation="6dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/about_card">
 
         <LinearLayout
@@ -195,8 +189,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_help"
-                    android:tint="#FFFFFF" />
+                    android:src="@drawable/ic_help" />
             </LinearLayout>
 
             <LinearLayout
@@ -223,12 +216,7 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center_vertical"
-                android:src="@android:drawable/ic_media_play"
-                android:tint="?android:attr/textColorSecondary" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -242,6 +230,10 @@
         android:text="Logout"
         android:textSize="16sp"
         app:cornerRadius="8dp"
+        app:icon="@drawable/ic_logout"
+        app:iconGravity="textStart"
+        app:iconTint="#FFFFFF"
+        app:iconPadding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

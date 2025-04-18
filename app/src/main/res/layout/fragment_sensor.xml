@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,11 +16,11 @@
             android:id="@+id/text_sensor_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:text="Farm Sensors"
             android:textAlignment="center"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -41,11 +42,15 @@
 
                 <TextView
                     android:id="@+id/text_l3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="21dp"
+                    android:layout_height="23dp"
+                    android:background="#31DBFA"
+                    android:backgroundTint="#0F70FF"
                     android:text="L3"
+                    android:textColor="#FAFAFA"
                     android:textSize="18sp"
                     android:textStyle="bold"
+                    app:cardCornerRadius="8dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -54,11 +59,11 @@
                     android:id="@+id/fault_indicator_l3"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
-                    android:background="@drawable/circle_background"
                     android:layout_marginStart="4dp"
+                    android:background="@drawable/circle_background"
+                    app:layout_constraintBottom_toBottomOf="@id/text_l3"
                     app:layout_constraintStart_toEndOf="@id/text_l3"
-                    app:layout_constraintTop_toTopOf="@id/text_l3"
-                    app:layout_constraintBottom_toBottomOf="@id/text_l3" />
+                    app:layout_constraintTop_toTopOf="@id/text_l3" />
 
                 <TextView
                     android:id="@+id/text_moisture_l3"
@@ -151,11 +156,11 @@
                     android:id="@+id/fault_indicator_l2"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
-                    android:background="@drawable/circle_background"
                     android:layout_marginStart="4dp"
+                    android:background="@drawable/circle_background"
+                    app:layout_constraintBottom_toBottomOf="@id/text_l2"
                     app:layout_constraintStart_toEndOf="@id/text_l2"
-                    app:layout_constraintTop_toTopOf="@id/text_l2"
-                    app:layout_constraintBottom_toBottomOf="@id/text_l2" />
+                    app:layout_constraintTop_toTopOf="@id/text_l2" />
 
                 <TextView
                     android:id="@+id/soilmoisture_l2"
@@ -171,9 +176,9 @@
                     android:id="@+id/text_moisture_l2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:text="2234"
                     android:textSize="16sp"
-                    android:layout_marginStart="16dp"
                     app:layout_constraintStart_toEndOf="@id/text_l2"
                     app:layout_constraintTop_toTopOf="@id/text_l2" />
 
@@ -181,10 +186,10 @@
                     android:id="@+id/text_moderate_l2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="MODERATE"
-                    android:textSize="14sp"
                     android:background="@android:color/holo_orange_light"
                     android:padding="4dp"
+                    android:text="MODERATE"
+                    android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -201,16 +206,16 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
                     android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
                     app:layout_constraintTop_toBottomOf="@id/progress_l2">
 
                     <ImageView
                         android:layout_width="280dp"
                         android:layout_height="100dp"
-                        android:src="@drawable/plant"
-                        android:layout_margin="4dp" />
+                        android:layout_margin="4dp"
+                        android:src="@drawable/plant" />
 
 
                 </LinearLayout>
@@ -248,19 +253,19 @@
                     android:id="@+id/fault_indicator_l1"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
-                    android:background="@drawable/circle_background"
                     android:layout_marginStart="4dp"
+                    android:background="@drawable/circle_background"
+                    app:layout_constraintBottom_toBottomOf="@id/text_l1"
                     app:layout_constraintStart_toEndOf="@id/text_l1"
-                    app:layout_constraintTop_toTopOf="@id/text_l1"
-                    app:layout_constraintBottom_toBottomOf="@id/text_l1" />
+                    app:layout_constraintTop_toTopOf="@id/text_l1" />
 
                 <TextView
                     android:id="@+id/text_moisture_l1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:text="1985"
                     android:textSize="16sp"
-                    android:layout_marginStart="16dp"
                     app:layout_constraintStart_toEndOf="@id/text_l1"
                     app:layout_constraintTop_toTopOf="@id/text_l1" />
 
@@ -268,9 +273,9 @@
                     android:id="@+id/soilmoisture_l1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
                     android:text="Soil Moisture"
                     android:textSize="16sp"
-                    android:layout_marginStart="12dp"
                     app:layout_constraintStart_toEndOf="@+id/text_moisture_l1"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -278,10 +283,10 @@
                     android:id="@+id/text_moderate_l1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="MODERATE"
-                    android:textSize="14sp"
                     android:background="@android:color/holo_orange_light"
                     android:padding="4dp"
+                    android:text="MODERATE"
+                    android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -298,16 +303,16 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
                     android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
                     app:layout_constraintTop_toBottomOf="@id/progress_l1">
 
                     <ImageView
                         android:layout_width="280dp"
                         android:layout_height="100dp"
-                        android:src="@drawable/plant"
-                        android:layout_margin="4dp" />
+                        android:layout_margin="4dp"
+                        android:src="@drawable/plant" />
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -351,27 +356,27 @@
                             android:layout_height="48dp"
                             android:layout_gravity="center_vertical"
                             android:progress="85"
-                            android:rotation="270"
-                            android:progressTint="@android:color/holo_green_light"/>
+                            android:progressTint="@android:color/holo_green_light"
+                            android:rotation="270" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Battery"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/battery_percentage"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="85%"
-                                android:textColor="@android:color/holo_green_dark"/>
+                                android:textColor="@android:color/holo_green_dark" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -400,14 +405,14 @@
                                 android:id="@+id/fault_indicator_ph"
                                 android:layout_width="12dp"
                                 android:layout_height="12dp"
-                                android:background="@drawable/circle_background"
-                                android:layout_marginEnd="8dp"/>
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/circle_background" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="pH Level"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold" />
                         </LinearLayout>
 
                         <TextView
@@ -415,8 +420,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="6.5"
-                            android:textSize="20sp"
-                            android:textColor="@android:color/holo_blue_dark"/>
+                            android:textColor="@android:color/holo_blue_dark"
+                            android:textSize="20sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -444,14 +449,14 @@
                                 android:id="@+id/fault_indicator_temp"
                                 android:layout_width="12dp"
                                 android:layout_height="12dp"
-                                android:background="@drawable/circle_background"
-                                android:layout_marginEnd="8dp"/>
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/circle_background" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Temperature"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold" />
                         </LinearLayout>
 
                         <TextView
@@ -459,8 +464,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="25°C"
-                            android:textSize="20sp"
-                            android:textColor="@android:color/holo_orange_dark"/>
+                            android:textColor="@android:color/holo_orange_dark"
+                            android:textSize="20sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -488,14 +493,14 @@
                                 android:id="@+id/fault_indicator_humidity"
                                 android:layout_width="12dp"
                                 android:layout_height="12dp"
-                                android:background="@drawable/circle_background"
-                                android:layout_marginEnd="8dp"/>
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/circle_background" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Humidity"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold" />
                         </LinearLayout>
 
                         <TextView
@@ -503,8 +508,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="65%"
-                            android:textSize="20sp"
-                            android:textColor="@android:color/holo_blue_light"/>
+                            android:textColor="@android:color/holo_blue_light"
+                            android:textSize="20sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -532,14 +537,14 @@
                                 android:id="@+id/fault_indicator_light"
                                 android:layout_width="12dp"
                                 android:layout_height="12dp"
-                                android:background="@drawable/circle_background"
-                                android:layout_marginEnd="8dp"/>
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/circle_background" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Light Intensity"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold" />
                         </LinearLayout>
 
                         <TextView
@@ -547,8 +552,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="800 lux"
-                            android:textSize="20sp"
-                            android:textColor="@android:color/holo_orange_light"/>
+                            android:textColor="@android:color/holo_orange_light"
+                            android:textSize="20sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -576,14 +581,14 @@
                                 android:id="@+id/fault_indicator_water"
                                 android:layout_width="12dp"
                                 android:layout_height="12dp"
-                                android:background="@drawable/circle_background"
-                                android:layout_marginEnd="8dp"/>
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/circle_background" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Water Tank"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold" />
                         </LinearLayout>
 
                         <TextView
@@ -591,7 +596,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Low"
-                            android:textColor="@android:color/holo_blue_light"/>
+                            android:textColor="@android:color/holo_blue_light" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -614,15 +619,15 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Grow Lights"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/grow_lights"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="ON"
-                            android:textSize="20sp"
-                            android:textColor="@android:color/holo_green_light"/>
+                            android:textColor="@android:color/holo_green_light"
+                            android:textSize="20sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -645,15 +650,15 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Water Pump"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/water_pump"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="OFF"
-                            android:textSize="20sp"
-                            android:textColor="@android:color/darker_gray"/>
+                            android:textColor="@android:color/darker_gray"
+                            android:textSize="20sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
