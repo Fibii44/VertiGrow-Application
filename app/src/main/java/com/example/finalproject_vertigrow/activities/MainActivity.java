@@ -9,29 +9,46 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.finalproject_vertigrow.R;
-import com.example.finalproject_vertigrow.models.User;
 import com.google.android.gms.auth.api.signin.*;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.play.core.integrity.IntegrityManager;
+import com.google.android.play.core.integrity.IntegrityManagerFactory;
+import com.google.android.play.core.integrity.IntegrityTokenRequest;
+import com.google.android.play.core.integrity.IntegrityTokenResponse;
 import com.google.firebase.auth.*;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
     // Constants
     private static final int RC_SIGN_IN = 9001;
     private static final String TAG = "MainActivity";
+    // Your cloud project number from Google Cloud Console - UPDATED TO CORRECT VALUE
+    private static final long CLOUD_PROJECT_NUMBER = 42961822919L;
 
     // Firebase instances
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private GoogleSignInClient mGoogleSignInClient;
+    
+    // Play Integrity
+    private IntegrityManager integrityManager;
+    
+    // Progress Dialog
+    private AlertDialog progressDialog;
 
     // UI Elements
     private EditText emailEditText, passwordEditText;
@@ -47,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         setupGoogleSignIn();
         setupClickListeners();
         checkExistingUser();
+        initializeIntegrityManager();
     }
 
     // Initialization Methods
@@ -71,12 +89,89 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        loginButton.setOnClickListener(v -> handleEmailLogin());
-        googleSignInButton.setOnClickListener(v -> handleGoogleSignIn());
+        loginButton.setOnClickListener(v -> {
+            // Use Play Integrity to protect email login
+            executeEmailLoginAction(v);
+        });
+        googleSignInButton.setOnClickListener(v -> {
+            // Use Play Integrity to protect Google sign-in
+            executeGoogleLoginAction(v);
+        });
     }
-
-    // Authentication Methods
-    private void handleEmailLogin() {
+    
+    // Initialize Play Integrity
+    private void initializeIntegrityManager() {
+        integrityManager = IntegrityManagerFactory.create(getApplicationContext());
+    }
+    
+    // Verify app integrity using Play Integrity API
+    private void verifyAppIntegrity() {
+        Log.d(TAG, "Verifying app integrity...");
+        
+        // Generate a nonce (unique for each request)
+        String nonce = UUID.randomUUID().toString();
+        
+        IntegrityTokenRequest request = IntegrityTokenRequest.builder()
+            .setCloudProjectNumber(CLOUD_PROJECT_NUMBER)
+            .setNonce(nonce)
+            .build();
+            
+        integrityManager.requestIntegrityToken(request)
+            .addOnSuccessListener(
+                this,
+                new OnSuccessListener<IntegrityTokenResponse>() {
+                    @Override
+                    public void onSuccess(IntegrityTokenResponse response) {
+                        String token = response.token();
+                        
+                        // More detailed logging for debugging
+                        Log.d(TAG, "======= PLAY INTEGRITY SUCCESS =======");
+                        Log.d(TAG, "Integrity token received: " + 
+                              (token.length() > 10 ? token.substring(0, 10) + "..." : "empty"));
+                        Log.d(TAG, "Token length: " + token.length());
+                        Log.d(TAG, "========================================");
+                        
+                        // Hide progress dialog
+                        hideSecurityCheckDialog();
+                        
+                        // Show success animation
+                        showSecuritySuccess();
+                        
+                        // Proceed with login after integrity check
+                            handleEmailLogin();
+                    }
+                })
+            .addOnFailureListener(
+                this,
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // More detailed logging for debugging
+                        Log.e(TAG, "======= PLAY INTEGRITY FAILED =======");
+                        Log.e(TAG, "Integrity verification failed: " + e.getMessage());
+                        
+                        // Log more specific error details if possible
+                        if (e instanceof ApiException) {
+                            ApiException apiException = (ApiException) e;
+                            Log.e(TAG, "Error code: " + apiException.getStatusCode());
+                            Log.e(TAG, "Error details: " + CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()));
+                        }
+                        
+                        Log.e(TAG, "======================================");
+                        
+                        // Hide progress dialog
+                        hideSecurityCheckDialog();
+                        
+                        Toast.makeText(MainActivity.this, 
+                            "App integrity check failed, but allowing login for development", 
+                            Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+    
+    // Execute login with Play Integrity check for email login
+    private void executeEmailLoginAction(View v) {
+        // First validate the input fields
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
@@ -84,6 +179,177 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
+        
+        // Now proceed with security check
+        // Show security check dialog
+        showSecurityCheckDialog();
+        
+        // Generate a nonce (unique for each request)
+        String nonce = UUID.randomUUID().toString();
+        
+        Log.d(TAG, "==== STARTING PLAY INTEGRITY CHECK ====");
+        Log.d(TAG, "Using Cloud Project Number: " + CLOUD_PROJECT_NUMBER);
+        Log.d(TAG, "Generated nonce: " + nonce);
+        
+        try {
+            IntegrityTokenRequest request = IntegrityTokenRequest.builder()
+                .setCloudProjectNumber(CLOUD_PROJECT_NUMBER)
+                .setNonce(nonce)
+                .build();
+                
+            integrityManager.requestIntegrityToken(request)
+                .addOnSuccessListener(
+                    this,
+                    new OnSuccessListener<IntegrityTokenResponse>() {
+                        @Override
+                        public void onSuccess(IntegrityTokenResponse response) {
+                            String token = response.token();
+                            
+                            // More detailed logging for debugging
+                            Log.d(TAG, "======= PLAY INTEGRITY SUCCESS =======");
+                            Log.d(TAG, "Integrity token received: " + 
+                                (token.length() > 10 ? token.substring(0, 10) + "..." : "empty"));
+                            Log.d(TAG, "Token length: " + token.length());
+                            Log.d(TAG, "========================================");
+                            
+                            // Show a visual indicator of success
+                            Toast.makeText(MainActivity.this, "Security check passed!", Toast.LENGTH_SHORT).show();
+                            
+                            // Hide progress dialog
+                            hideSecurityCheckDialog();
+                            
+                            // Show success animation
+                            showSecuritySuccess();
+                            
+                            // Proceed with login after integrity check
+                            handleEmailLogin();
+                        }
+                    })
+                .addOnFailureListener(
+                    this,
+                    new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // More detailed logging for debugging
+                            Log.e(TAG, "======= PLAY INTEGRITY FAILED =======");
+                            Log.e(TAG, "Integrity verification failed: " + e.getMessage());
+                            
+                            // Log more specific error details if possible
+                            if (e instanceof ApiException) {
+                                ApiException apiException = (ApiException) e;
+                                Log.e(TAG, "Error code: " + apiException.getStatusCode());
+                                Log.e(TAG, "Error details: " + CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()));
+                            }
+                            
+                            Log.e(TAG, "======================================");
+                            
+                            // Show a visual indicator of failure
+                            Toast.makeText(MainActivity.this, "Security check failed! Login blocked.", Toast.LENGTH_LONG).show();
+                            
+                            // Hide progress dialog
+                            hideSecurityCheckDialog();
+                            
+                            // Show security error dialog
+                            showSecurityError(e);
+                            
+                            // SECURITY BLOCK: Don't allow login on failure
+                            // handleEmailLogin(); -- REMOVED
+                        }
+                    });
+        } catch (Exception e) {
+            Log.e(TAG, "EXCEPTION CREATING INTEGRITY REQUEST: " + e.getMessage(), e);
+            Toast.makeText(this, "Error setting up security check: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            hideSecurityCheckDialog();
+        }
+    }
+    
+    // Execute login with Play Integrity check for Google sign-in
+    private void executeGoogleLoginAction(View v) {
+        // Show security check dialog
+        showSecurityCheckDialog();
+        
+        // Generate a nonce (unique for each request)
+        String nonce = UUID.randomUUID().toString();
+        
+        Log.d(TAG, "==== STARTING PLAY INTEGRITY CHECK (GOOGLE) ====");
+        Log.d(TAG, "Using Cloud Project Number: " + CLOUD_PROJECT_NUMBER);
+        Log.d(TAG, "Generated nonce: " + nonce);
+        
+        try {
+            IntegrityTokenRequest request = IntegrityTokenRequest.builder()
+                .setCloudProjectNumber(CLOUD_PROJECT_NUMBER)
+                .setNonce(nonce)
+                .build();
+                
+            integrityManager.requestIntegrityToken(request)
+                .addOnSuccessListener(
+                    this,
+                    new OnSuccessListener<IntegrityTokenResponse>() {
+                        @Override
+                        public void onSuccess(IntegrityTokenResponse response) {
+                            String token = response.token();
+                            
+                            // More detailed logging for debugging
+                            Log.d(TAG, "======= PLAY INTEGRITY SUCCESS (GOOGLE) =======");
+                            Log.d(TAG, "Integrity token received: " + 
+                                (token.length() > 10 ? token.substring(0, 10) + "..." : "empty"));
+                            Log.d(TAG, "Token length: " + token.length());
+                            Log.d(TAG, "========================================");
+                            
+                            // Show a visual indicator of success
+                            Toast.makeText(MainActivity.this, "Security check passed!", Toast.LENGTH_SHORT).show();
+                            
+                            // Hide progress dialog
+                            hideSecurityCheckDialog();
+                            
+                            // Show success animation
+                            showSecuritySuccess();
+                            
+                            // Proceed with Google sign-in after integrity check
+                            handleGoogleSignIn();
+                        }
+                    })
+                .addOnFailureListener(
+                    this,
+                    new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // More detailed logging for debugging
+                            Log.e(TAG, "======= PLAY INTEGRITY FAILED (GOOGLE) =======");
+                            Log.e(TAG, "Integrity verification failed: " + e.getMessage());
+                            
+                            // Log more specific error details if possible
+                            if (e instanceof ApiException) {
+                                ApiException apiException = (ApiException) e;
+                                Log.e(TAG, "Error code: " + apiException.getStatusCode());
+                                Log.e(TAG, "Error details: " + CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()));
+                            }
+                            
+                            Log.e(TAG, "======================================");
+                            
+                            // Show a visual indicator of failure
+                            Toast.makeText(MainActivity.this, "Security check failed! Login blocked.", Toast.LENGTH_LONG).show();
+                            
+                            // Hide progress dialog
+                            hideSecurityCheckDialog();
+                            
+                            // Show security error dialog
+                            showSecurityError(e);
+                            
+                            // SECURITY BLOCK: Don't allow login on failure
+                            // handleGoogleSignIn(); -- REMOVED
+                        }
+                    });
+        } catch (Exception e) {
+            Log.e(TAG, "EXCEPTION CREATING INTEGRITY REQUEST (GOOGLE): " + e.getMessage(), e);
+            Toast.makeText(this, "Error setting up security check: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            hideSecurityCheckDialog();
+        }
+    }
+
+    private void handleEmailLogin() {
+        String email = emailEditText.getText().toString().trim();
+        String password = passwordEditText.getText().toString().trim();
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
@@ -399,5 +665,82 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("userRole", role);
         startActivity(intent);
         finish();
+    }
+
+    // Show a styled security check dialog
+    private void showSecurityCheckDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+        View view = getLayoutInflater().inflate(R.layout.dialog_security_check, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+        progressDialog = builder.create();
+        if (!isFinishing()) {
+            progressDialog.show();
+        }
+    }
+    
+    // Hide the security check dialog
+    private void hideSecurityCheckDialog() {
+        if (progressDialog != null && progressDialog.isShowing() && !isFinishing()) {
+            progressDialog.dismiss();
+        }
+    }
+    
+    // Show success animation briefly
+    private void showSecuritySuccess() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+        View view = getLayoutInflater().inflate(R.layout.dialog_security_success, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+        AlertDialog successDialog = builder.create();
+        if (!isFinishing()) {
+            successDialog.show();
+            
+            // Dismiss after a short delay
+            new android.os.Handler().postDelayed(() -> {
+                if (successDialog.isShowing() && !isFinishing()) {
+                    successDialog.dismiss();
+                }
+            }, 1500);
+        }
+    }
+    
+    // Show security error dialog
+    private void showSecurityError(Exception e) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+        View view = getLayoutInflater().inflate(R.layout.dialog_security_error, null);
+        builder.setView(view);
+        
+        // Get error message TextView
+        android.widget.TextView errorMessageView = view.findViewById(R.id.errorMessageTextView);
+        String errorMessage = "Security verification failed. For your protection, login has been blocked.";
+        
+        // Get specific error details if possible
+        if (e instanceof ApiException) {
+            ApiException apiException = (ApiException) e;
+            errorMessage += "\n\nError: " + CommonStatusCodes.getStatusCodeString(apiException.getStatusCode());
+        } else if (e.getMessage() != null) {
+            errorMessage += "\n\nError: " + e.getMessage();
+        }
+        
+        // Set error message
+        errorMessageView.setText(errorMessage);
+        
+        // Set up dismiss button
+        android.widget.Button dismissButton = view.findViewById(R.id.dismissButton);
+        
+        // Create and show the dialog
+        AlertDialog errorDialog = builder.create();
+        
+        // Set button click listener - just dismiss the dialog
+        dismissButton.setOnClickListener(v -> {
+            if (errorDialog.isShowing() && !isFinishing()) {
+                errorDialog.dismiss();
+            }
+        });
+        
+        if (!isFinishing()) {
+            errorDialog.show();
+        }
     }
 }

@@ -68,6 +68,8 @@ dependencies {
 
     // Google Sign-In Auth
     implementation("com.google.android.gms:play-services-auth:20.5.0")
+    // Google SafetyNet for Play Integrity API
+    implementation("com.google.android.play:integrity:1.1.0")
     //Google Icons
     implementation("com.google.android.material:material:1.9.0")
     implementation ("org.json:json:20231013")
