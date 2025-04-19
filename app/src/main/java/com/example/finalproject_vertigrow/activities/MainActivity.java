@@ -165,10 +165,10 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, 
                             "App integrity check failed, but allowing login for development", 
                             Toast.LENGTH_LONG).show();
-                    }
-                });
+                }
+            });
     }
-    
+
     // Execute login with Play Integrity check for email login
     private void executeEmailLoginAction(View v) {
         // First validate the input fields
@@ -180,10 +180,26 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         
-        // Now proceed with security check
-        // Show security check dialog
-        showSecurityCheckDialog();
-        
+        // First verify that the credentials are valid WITHOUT showing any UI
+        mAuth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener(authResult -> {
+                // Credentials are valid, now perform security check
+                Log.d(TAG, "Credentials valid, proceeding with security check");
+                // Only show the security check dialog now that credentials are valid
+                showSecurityCheckDialog();
+                performEmailSecurityCheck(authResult);
+            })
+            .addOnFailureListener(e -> {
+                // Credentials are invalid, no need for security check
+                Toast.makeText(MainActivity.this, 
+                    "Login Failed: " + e.getMessage(), 
+                    Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Login credentials invalid: " + e.getMessage());
+            });
+    }
+    
+    // Perform security check after credentials are validated
+    private void performEmailSecurityCheck(AuthResult authResult) {
         // Generate a nonce (unique for each request)
         String nonce = UUID.randomUUID().toString();
         
@@ -212,17 +228,17 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "Token length: " + token.length());
                             Log.d(TAG, "========================================");
                             
-                            // Show a visual indicator of success
-                            Toast.makeText(MainActivity.this, "Security check passed!", Toast.LENGTH_SHORT).show();
-                            
                             // Hide progress dialog
                             hideSecurityCheckDialog();
                             
                             // Show success animation
                             showSecuritySuccess();
                             
-                            // Proceed with login after integrity check
-                            handleEmailLogin();
+                            // Proceed with login - use the already authenticated user
+                            FirebaseUser user = authResult.getUser();
+                            if (user != null) {
+                                checkUserInFirestore(user.getUid());
+                            }
                         }
                     })
                 .addOnFailureListener(
@@ -243,31 +259,63 @@ public class MainActivity extends AppCompatActivity {
                             
                             Log.e(TAG, "======================================");
                             
-                            // Show a visual indicator of failure
-                            Toast.makeText(MainActivity.this, "Security check failed! Login blocked.", Toast.LENGTH_LONG).show();
+                            // Sign out the user since security check failed
+                            mAuth.signOut();
                             
                             // Hide progress dialog
                             hideSecurityCheckDialog();
                             
                             // Show security error dialog
                             showSecurityError(e);
-                            
-                            // SECURITY BLOCK: Don't allow login on failure
-                            // handleEmailLogin(); -- REMOVED
                         }
                     });
         } catch (Exception e) {
             Log.e(TAG, "EXCEPTION CREATING INTEGRITY REQUEST: " + e.getMessage(), e);
-            Toast.makeText(this, "Error setting up security check: " + e.getMessage(), Toast.LENGTH_LONG).show();
             hideSecurityCheckDialog();
+            // Sign out the user since security check failed
+            mAuth.signOut();
+            showSecurityError(e);
         }
     }
     
     // Execute login with Play Integrity check for Google sign-in
     private void executeGoogleLoginAction(View v) {
-        // Show security check dialog
-        showSecurityCheckDialog();
-        
+        // Start Google Sign-in process
+        try {
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, RC_SIGN_IN);
+        } catch (Exception e) {
+            Log.e(TAG, "Error launching sign in: " + e.getMessage());
+            Toast.makeText(this, "Sign in error: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            // Handle Google sign-in result WITHOUT showing loading yet
+            GoogleSignIn.getSignedInAccountFromIntent(data)
+                .addOnSuccessListener(account -> {
+                    // Google sign-in successful, now perform security check
+                    Log.d(TAG, "Google sign-in successful, proceeding with security check");
+                    // Only now show the security check dialog
+                    showSecurityCheckDialog();
+                    performGoogleSecurityCheck(account);
+                })
+                .addOnFailureListener(e -> {
+                    // Google sign-in failed, no need for security check
+                    Toast.makeText(MainActivity.this, 
+                        "Google sign-in failed: " + e.getMessage(), 
+                        Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Google sign-in failed: " + e.getMessage());
+                });
+        }
+    }
+    
+    // Perform security check after Google sign-in succeeds
+    private void performGoogleSecurityCheck(GoogleSignInAccount account) {
         // Generate a nonce (unique for each request)
         String nonce = UUID.randomUUID().toString();
         
@@ -296,17 +344,14 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "Token length: " + token.length());
                             Log.d(TAG, "========================================");
                             
-                            // Show a visual indicator of success
-                            Toast.makeText(MainActivity.this, "Security check passed!", Toast.LENGTH_SHORT).show();
-                            
                             // Hide progress dialog
                             hideSecurityCheckDialog();
                             
                             // Show success animation
                             showSecuritySuccess();
                             
-                            // Proceed with Google sign-in after integrity check
-                            handleGoogleSignIn();
+                            // Proceed with the normal Google login process
+                            firebaseAuthWithGoogle(account);
                         }
                     })
                 .addOnFailureListener(
@@ -327,23 +372,22 @@ public class MainActivity extends AppCompatActivity {
                             
                             Log.e(TAG, "======================================");
                             
-                            // Show a visual indicator of failure
-                            Toast.makeText(MainActivity.this, "Security check failed! Login blocked.", Toast.LENGTH_LONG).show();
+                            // Sign out Google
+                            mGoogleSignInClient.signOut();
                             
                             // Hide progress dialog
                             hideSecurityCheckDialog();
                             
                             // Show security error dialog
                             showSecurityError(e);
-                            
-                            // SECURITY BLOCK: Don't allow login on failure
-                            // handleGoogleSignIn(); -- REMOVED
                         }
                     });
         } catch (Exception e) {
             Log.e(TAG, "EXCEPTION CREATING INTEGRITY REQUEST (GOOGLE): " + e.getMessage(), e);
-            Toast.makeText(this, "Error setting up security check: " + e.getMessage(), Toast.LENGTH_LONG).show();
             hideSecurityCheckDialog();
+            // Sign out Google
+            mGoogleSignInClient.signOut();
+            showSecurityError(e);
         }
     }
 
@@ -362,39 +406,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this,
                                 "Login Failed: " + task.getException().getMessage(),
                                 Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void handleGoogleSignIn() {
-        try {
-            // Start Google sign-in directly without showing initial warning
-            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-            startActivityForResult(signInIntent, RC_SIGN_IN);
-        } catch (Exception e) {
-            Log.e(TAG, "Error launching sign in: " + e.getMessage());
-            Toast.makeText(this, "Sign in error: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN) {
-            handleGoogleSignInResult(data);
-        }
-    }
-
-    private void handleGoogleSignInResult(Intent data) {
-        GoogleSignIn.getSignedInAccountFromIntent(data)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        GoogleSignInAccount account = task.getResult();
-                        firebaseAuthWithGoogle(account);
-                    } else {
-                        Toast.makeText(this, "Google sign-in failed: " +
-                                task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
